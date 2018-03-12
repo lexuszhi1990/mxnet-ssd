@@ -81,6 +81,7 @@ class Coco(Imdb):
         labels = []
         coco = COCO(anno_file)
         img_ids = coco.getImgIds()
+
         for img_id in img_ids:
             # filename
             image_info = coco.loadImgs(img_id)[0]
@@ -96,11 +97,12 @@ class Coco(Imdb):
                 cat_id = int(anno["category_id"])
                 bbox = anno["bbox"]
                 assert len(bbox) == 4
-                xmin = float(bbox[0]) / width
-                ymin = float(bbox[1]) / height
-                xmax = xmin + float(bbox[2]) / width
-                ymax = ymin + float(bbox[3]) / height
-                label.append([cat_id, xmin, ymin, xmax, ymax, 0])
+                if cat_id == 1:
+                    xmin = float(bbox[0]) / width
+                    ymin = float(bbox[1]) / height
+                    xmax = xmin + float(bbox[2]) / width
+                    ymax = ymin + float(bbox[3]) / height
+                    label.append([cat_id, xmin, ymin, xmax, ymax, 0])
             if label:
                 labels.append(np.array(label))
                 image_set_index.append(filename)
