@@ -263,7 +263,7 @@ def train_net(network, train_path, num_classes, batch_size,
                 else:
                     if not 'pred' in k:
                         fixed_param_names.append(k)
-    elif pretrained:
+    elif pretrained != "null":
         logger.info("Start training with {} from pretrained model {}"
                     .format(ctx_str, pretrained))
         _, args, auxs = mx.model.load_checkpoint(pretrained, epoch)
@@ -280,10 +280,8 @@ def train_net(network, train_path, num_classes, batch_size,
         logger.info("Freezed parameters: [" + ','.join(fixed_param_names) + ']')
 
     # visualize net - both train and test
-    net_visualization(net=net, network=network,data_shape=data_shape[2],
-                      output_dir=os.path.dirname(prefix), train=True)
-    net_visualization(net=None, network=network, data_shape=data_shape[2],
-                      output_dir=os.path.dirname(prefix), train=False, num_classes=num_classes)
+    net_visualization(net=net, network=network,data_shape=data_shape[2], output_dir=os.path.dirname(prefix), train=True)
+    # net_visualization(net=None, network=network, data_shape=data_shape[2], output_dir=os.path.dirname(prefix), train=False, num_classes=num_classes)
 
     # init training module
     mod = mx.mod.Module(net, label_names=('label',), logger=logger, context=ctx,
@@ -330,10 +328,10 @@ def train_net(network, train_path, num_classes, batch_size,
 
     # run fit net, every n epochs we run evaluation network to get mAP
     if voc07_metric:
-        valid_metric = VOC07MApMetric(ovp_thresh, use_difficult, class_names, pred_idx=3,
+        valid_metric = VOC07MApMetric(ovp_thresh, use_difficult, class_names, pred_idx=0,
                                       roc_output_path=os.path.join(os.path.dirname(prefix), 'roc'))
     else:
-        valid_metric = MApMetric(ovp_thresh, use_difficult, class_names, pred_idx=3,
+        valid_metric = MApMetric(ovp_thresh, use_difficult, class_names, pred_idx=0,
                                  roc_output_path=os.path.join(os.path.dirname(prefix), 'roc'))
 
     mod.fit(train_iter,

@@ -16,6 +16,7 @@ def parse_args():
                         default=os.path.join(os.getcwd(), 'data', 'val.rec'), type=str)
     parser.add_argument('--val-list', dest='val_list', help='validation list to use',
                         default="", type=str)
+
     parser.add_argument('--network', dest='network', type=str, default='vgg16_reduced',
                         help='which network to use')
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=32,
@@ -24,6 +25,7 @@ def parse_args():
                         help='resume training from epoch n')
     parser.add_argument('--finetune', dest='finetune', type=int, default=-1,
                         help='finetune from epoch n, rename the model before doing this')
+
     parser.add_argument('--pretrained', dest='pretrained', help='pretrained model prefix',
                         default=os.path.join(os.getcwd(), 'model', 'vgg16_reduced'), type=str)
     parser.add_argument('--epoch', dest='epoch', help='epoch of pretrained model',
@@ -68,6 +70,7 @@ def parse_args():
                         help='log network parameters every N iters if larger than 0')
     parser.add_argument('--pattern', dest='monitor_pattern', type=str, default=".*",
                         help='monitor parameter pattern, as regex')
+
     parser.add_argument('--num-class', dest='num_class', type=int, default=20,
                         help='number of classes')
     parser.add_argument('--num-example', dest='num_example', type=int, default=16551,
@@ -122,6 +125,7 @@ if __name__ == '__main__':
     # class names if applicable
     class_names = parse_class_names(args)
     # start training
+
     train_net(args.network, args.train_path,
               args.num_class, args.batch_size,
               args.data_shape, [args.mean_r, args.mean_g, args.mean_b],
