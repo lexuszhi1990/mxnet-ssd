@@ -48,29 +48,25 @@ def load_pascal(image_set, year, devkit_path, shuffle=False, class_names=None, t
     else:
         return imdbs[0]
 
-def load_coco(image_set, dirname, shuffle=False):
+def load_coco(image_set, root_path, shuffle=False):
     """
     wrapper function for loading ms coco dataset
 
     Parameters:
     ----------
     image_set : str
-        train2014, val2014, valminusminival2014, minival2014
-    dirname: str
+        train2017
+    root_path: str
         root dir for coco
     shuffle: boolean
         initial shuffle
     """
-    anno_files = ['instances_' + y.strip() + '.json' for y in image_set.split(',')]
-    assert anno_files, "No image set specified"
-    imdbs = []
-    for af in anno_files:
-        af_path = os.path.join(dirname, 'annotations', af)
-        imdbs.append(Coco(af_path, dirname, shuffle=shuffle))
-    if len(imdbs) > 1:
-        return ConcatDB(imdbs, shuffle)
-    else:
-        return imdbs[0]
+    anno_file = 'instances_' + image_set.strip() + '.json'
+    assert anno_file, "No image set specified"
+
+    af_path = os.path.join(root_path, 'annotations', anno_file)
+    image_dir = os.path.join(root_path, 'images', image_set)
+    return Coco(af_path, image_dir, shuffle=shuffle)
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Prepare lists for dataset')

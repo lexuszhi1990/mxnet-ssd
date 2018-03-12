@@ -47,7 +47,7 @@ class Coco(Imdb):
         """
         assert self.image_set_index is not None, "Dataset not initialized"
         name = self.image_set_index[index]
-        image_file = os.path.join(self.image_dir, 'images', name)
+        image_file = os.path.join(self.image_dir, name)
         assert os.path.isfile(image_file), 'Path does not exist: {}'.format(image_file)
         return image_file
 
@@ -85,7 +85,7 @@ class Coco(Imdb):
             # filename
             image_info = coco.loadImgs(img_id)[0]
             filename = image_info["file_name"]
-            subdir = filename.split('_')[1]
+            img_index = filename.split('.')[0]
             height = image_info["height"]
             width = image_info["width"]
             # label
@@ -103,7 +103,7 @@ class Coco(Imdb):
                 label.append([cat_id, xmin, ymin, xmax, ymax, 0])
             if label:
                 labels.append(np.array(label))
-                image_set_index.append(os.path.join(subdir, filename))
+                image_set_index.append(filename)
 
         if shuffle:
             import random
