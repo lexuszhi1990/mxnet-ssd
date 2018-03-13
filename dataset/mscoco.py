@@ -102,7 +102,7 @@ class Coco(Imdb):
                     ymin = float(bbox[1]) / height
                     xmax = xmin + float(bbox[2]) / width
                     ymax = ymin + float(bbox[3]) / height
-                    label.append([cat_id, xmin, ymin, xmax, ymax, 0])
+                    label.append([0, xmin, ymin, xmax, ymax, 0])
             if label:
                 labels.append(np.array(label))
                 image_set_index.append(filename)

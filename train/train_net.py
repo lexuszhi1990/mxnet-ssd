@@ -219,8 +219,7 @@ def train_net(network, train_path, num_classes, batch_size,
         mean_pixels = [mean_pixels, mean_pixels, mean_pixels]
     assert len(mean_pixels) == 3, "must provide all RGB mean values"
 
-    train_iter = DetRecordIter(train_path, batch_size, data_shape, mean_pixels=mean_pixels,
-                               label_pad_width=label_pad_width, path_imglist=train_list, **cfg.train)
+    train_iter = DetRecordIter(train_path, batch_size, data_shape, mean_pixels=mean_pixels, label_pad_width=label_pad_width, path_imglist=train_list, **cfg.train)
 
     if val_path:
         val_iter = DetRecordIter(val_path, batch_size, data_shape, mean_pixels=mean_pixels,
@@ -229,8 +228,7 @@ def train_net(network, train_path, num_classes, batch_size,
         val_iter = None
 
     # load symbol
-    net = get_symbol_train(network, data_shape[1], num_classes=num_classes,
-                           nms_thresh=nms_thresh, force_suppress=force_suppress, nms_topk=nms_topk, minimum_negative_samples=min_neg_samples)
+    net = get_symbol_train(network, data_shape[1], num_classes=num_classes, nms_thresh=nms_thresh, force_suppress=force_suppress, nms_topk=nms_topk, minimum_negative_samples=min_neg_samples)
 
     # define layers with fixed weight/bias
     if freeze_layer_pattern.strip():
@@ -328,10 +326,10 @@ def train_net(network, train_path, num_classes, batch_size,
 
     # run fit net, every n epochs we run evaluation network to get mAP
     if voc07_metric:
-        valid_metric = VOC07MApMetric(ovp_thresh, use_difficult, class_names, pred_idx=0,
+        valid_metric = VOC07MApMetric(ovp_thresh, use_difficult, class_names, pred_idx=3,
                                       roc_output_path=os.path.join(os.path.dirname(prefix), 'roc'))
     else:
-        valid_metric = MApMetric(ovp_thresh, use_difficult, class_names, pred_idx=0,
+        valid_metric = MApMetric(ovp_thresh, use_difficult, class_names, pred_idx=3,
                                  roc_output_path=os.path.join(os.path.dirname(prefix), 'roc'))
 
     mod.fit(train_iter,
