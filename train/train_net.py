@@ -266,6 +266,12 @@ def train_net(network, train_path, num_classes, batch_size,
                     .format(ctx_str, pretrained))
         _, args, auxs = mx.model.load_checkpoint(pretrained, epoch)
         args = convert_pretrained(pretrained, args)
+
+        #  remove the parameters with cls_pred, because number class has changed.
+        cls_re_prog = re.compile(r'(.*)_cls_pred_(.*)')
+        for name in net.list_arguments():
+            if cls_re_prog.match(name):
+                del args[name]
     else:
         logger.info("Experimental: start training from scratch with {}"
                     .format(ctx_str))
