@@ -296,6 +296,7 @@ def train_net(network, train_path, num_classes, batch_size,
     epoch_end_callback = [mx.callback.do_checkpoint(prefix, period=checkpoint_period)]
 
     # add logging to tensorboard
+
     if tensorboard:
         tensorboard_dir = os.path.join(os.path.dirname(prefix), 'logs')
         if not os.path.exists(tensorboard_dir):

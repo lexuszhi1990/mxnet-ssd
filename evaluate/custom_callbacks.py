@@ -30,7 +30,7 @@ class ParseLogCallback(object):
         self.batch = 0
         self.line_idx = 0
         try:
-            from tensorboard import SummaryWriter
+            from tensorboardX import SummaryWriter
             self.dist_summary_writer = SummaryWriter(dist_logging_dir)
             self.scalar_summary_writer = SummaryWriter(scalar_logging_dir)
         except ImportError:
@@ -81,7 +81,7 @@ class LogROCCallback(object):
         self.roc_path = roc_path
         self.class_names = class_names
         try:
-            from tensorboard import SummaryWriter
+            from tensorboardX import SummaryWriter
             self.summary_writer = SummaryWriter(logging_dir)
         except ImportError:
             logging.error('You can install tensorboard via `pip install tensorboard`.')
@@ -111,7 +111,7 @@ class LogDetectionsCallback(object):
         self.mean_pixels = mean_pixels
         self.det_thresh = det_thresh
         try:
-            from tensorboard import SummaryWriter
+            from tensorboardX import SummaryWriter
             self.summary_writer = SummaryWriter(logging_dir)
         except ImportError:
             logging.error('You can install tensorboard via `pip install tensorboard`.')
@@ -237,7 +237,7 @@ class LogDistributionsCallback(object):
         self.prefix = prefix
         self.layers_list = layers_list
         try:
-            from tensorboard import SummaryWriter
+            from tensorboardX import SummaryWriter
             self.summary_writer = SummaryWriter(logging_dir)
         except ImportError:
             logging.error('You can install tensorboard via `pip install tensorboard`.')
