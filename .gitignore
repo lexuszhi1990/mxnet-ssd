@@ -46,7 +46,6 @@ tools/caffe_converter/*.caffemodel
 *log
 Debug
 *suo
-tracker
 
 # vim
 *.swp
