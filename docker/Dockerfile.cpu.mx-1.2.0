@@ -1,0 +1,15 @@
+FROM    mxnet/python:1.2.0-dev
+MAINTAINER DavidFu <lexuszhi1990@gmail.com>
+
+RUN     apt-get update && apt-get install -y \
+        graphviz \
+        python-tk
+
+
+RUN     pip3 install matplotlib scipy graphviz tensorboardX future
+
+RUN     git clone -b dist https://github.com/lexuszhi1990/mxnet-ssd.git /app
+
+WORKDIR /app
+
+# RUN python train.py --train-path data/pedestrian/train.rec --val-path data/pedestrian/val.rec --gpus 0 --batch-size 28 --lr 0.01 --network resnet50 --freeze '' --pretrained ./model/ssd_resnet50_512 --epoch 0 --tensorboard True --num-class 1 --class-names person
