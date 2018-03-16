@@ -97,6 +97,14 @@ def parse_args():
     parser.add_argument('--min_neg_samples', dest='min_neg_samples', type=int, default=0,
                         help='min number of negative samples taken in hard mining.')
 
+    parser.add_argument('--kv-store', type=str, default='device',
+                       help='key-value store type')
+    parser.add_argument('--gc-type', type=str, default='none',
+                       help='type of gradient compression to use, \
+                             takes `2bit` or `none` for now')
+    parser.add_argument('--gc-threshold', type=float, default=0.5,
+                       help='threshold for 2bit gradient compression')
+
     args = parser.parse_args()
     return args
 
@@ -149,4 +157,8 @@ if __name__ == '__main__':
               use_difficult=args.use_difficult,
               voc07_metric=args.use_voc07_metric,
               optimizer=args.optimizer,
-              tensorboard=args.tensorboard)
+              tensorboard=args.tensorboard,
+              kv_store=args.kv_store,
+              gc_type=args.gc_type,
+              gc_threshold=args.gc_threshold,
+              )
