@@ -263,8 +263,8 @@ def train_net(network, train_path, num_classes, batch_size,
         logger.info("Resume training with {} from epoch {}"
                     .format(ctx_str, resume))
 
-        if kv.rank > 0 and os.path.exists("%s-%d-symbol.json" % (model_prefix, kv.rank)):
-            model_prefix += "-%d" % (kv.rank)
+        if kv.rank > 0 and os.path.exists("%s-%d-symbol.json" % (prefix, kv.rank)):
+            prefix += "-%d" % (kv.rank)
 
         _, args, auxs = mx.model.load_checkpoint(prefix, resume)
         begin_epoch = resume
@@ -370,6 +370,7 @@ def train_net(network, train_path, num_classes, batch_size,
             eval_end_callback=eval_end_callback,
             epoch_end_callback=epoch_end_callback,
             optimizer=opt,
+            kvstore=kv,
             optimizer_params=opt_params,
             begin_epoch=begin_epoch,
             num_epoch=end_epoch,
