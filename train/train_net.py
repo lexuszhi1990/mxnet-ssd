@@ -91,6 +91,10 @@ def get_lr_scheduler(learning_rate, lr_refactor_step, lr_refactor_ratio,
     else:
         lr = learning_rate
         epoch_size = num_example // batch_size
+
+        if 'dist' in args.kv_store:
+            epoch_size /= kv.num_workers
+
         for s in iter_refactor:
             if begin_epoch >= s:
                 lr *= lr_refactor_ratio
@@ -102,6 +106,14 @@ def get_lr_scheduler(learning_rate, lr_refactor_step, lr_refactor_ratio,
         lr_scheduler = mx.lr_scheduler.MultiFactorScheduler(step=steps, factor=lr_refactor_ratio)
         return (lr, lr_scheduler)
 
+def save_model(model_prefix, rank=0):
+    if model_prefix is None:
+        return None
+    dst_dir = os.path.dirname(model_prefix)
+    if not os.path.isdir(dst_dir):
+        os.mkdir(dst_dir)
+    return mx.callback.do_checkpoint(model_prefix if rank == 0 else "%s-%d" % (
+        model_prefix, rank))
 
 def train_net(network, train_path, num_classes, batch_size,
               data_shape, mean_pixels, resume, finetune, pretrained, epoch,
@@ -114,7 +126,7 @@ def train_net(network, train_path, num_classes, batch_size,
               voc07_metric=False, nms_topk=400, force_suppress=False,
               train_list="", val_path="", val_list="", iter_monitor=0,
               monitor_pattern=".*", log_file=None, optimizer='sgd', tensorboard=False,
-              checkpoint_period=5, min_neg_samples=0):
+              checkpoint_period=5, min_neg_samples=0, kv_store='device', gc_type='None' ,gc_threshold=0.5):
     """
     Wrapper for training phase.
 
@@ -193,6 +205,11 @@ def train_net(network, train_path, num_classes, batch_size,
         a checkpoint will be saved every "checkpoint_period" epochs
     """
     # check actual number of train_images
+
+    kv = mx.kvstore.create(kv_store)
+    if gc_type != 'none':
+        kv.set_gradient_compression({'type': gc_type, 'threshold': gc_threshold})
+
     if os.path.exists(train_path.replace('rec','idx')):
         with open(train_path.replace('rec','idx'), 'r') as f:
             txt = f.readlines()
@@ -219,11 +236,10 @@ def train_net(network, train_path, num_classes, batch_size,
         mean_pixels = [mean_pixels, mean_pixels, mean_pixels]
     assert len(mean_pixels) == 3, "must provide all RGB mean values"
 
-    train_iter = DetRecordIter(train_path, batch_size, data_shape, mean_pixels=mean_pixels, label_pad_width=label_pad_width, path_imglist=train_list, **cfg.train)
+    train_iter = DetRecordIter(train_path, batch_size, data_shape, mean_pixels=mean_pixels, label_pad_width=label_pad_width, path_imglist=train_list, kv=kv, **cfg.train)
 
     if val_path:
-        val_iter = DetRecordIter(val_path, batch_size, data_shape, mean_pixels=mean_pixels,
-                                 label_pad_width=label_pad_width, path_imglist=val_list, **cfg.valid)
+        val_iter = DetRecordIter(val_path, batch_size, data_shape, mean_pixels=mean_pixels, label_pad_width=label_pad_width, path_imglist=val_list, kv=kv, **cfg.valid)
     else:
         val_iter = None
 
@@ -242,6 +258,10 @@ def train_net(network, train_path, num_classes, batch_size,
     if resume > 0:
         logger.info("Resume training with {} from epoch {}"
                     .format(ctx_str, resume))
+
+        if kv.rank > 0 and os.path.exists("%s-%d-symbol.json" % (model_prefix, kv.rank)):
+            model_prefix += "-%d" % (kv.rank)
+
         _, args, auxs = mx.model.load_checkpoint(prefix, resume)
         begin_epoch = resume
     elif finetune > 0:
@@ -293,7 +313,7 @@ def train_net(network, train_path, num_classes, batch_size,
 
     batch_end_callback = []
     eval_end_callback = []
-    epoch_end_callback = [mx.callback.do_checkpoint(prefix, period=checkpoint_period)]
+    epoch_end_callback = [save_model(prefix, kv.rank)]
 
     # add logging to tensorboard
 

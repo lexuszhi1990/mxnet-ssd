@@ -42,9 +42,15 @@ class DetRecordIter(mx.io.DataIter):
     """
     def __init__(self, path_imgrec, batch_size, data_shape, path_imglist="",
                  label_width=-1, label_pad_width=-1, label_pad_value=-1,
-                 resize_mode='force',  mean_pixels=[123.68, 116.779, 103.939],
+                 resize_mode='force',  mean_pixels=[123.68, 116.779, 103.939], kv=None,
                  **kwargs):
         super(DetRecordIter, self).__init__()
+
+        if kv:
+            (rank, nworker) = (kv.rank, kv.num_workers)
+        else:
+            (rank, nworker) = (0, 1)
+
         self.rec = mx.io.ImageDetRecordIter(
             path_imgrec     = path_imgrec,
             path_imglist    = path_imglist,
@@ -57,6 +63,8 @@ class DetRecordIter(mx.io.DataIter):
             mean_g          = mean_pixels[1],
             mean_b          = mean_pixels[2],
             resize_mode     = resize_mode,
+            num_parts           = nworker,
+            part_index          = rank,
             **kwargs)
 
         self.provide_label = None
