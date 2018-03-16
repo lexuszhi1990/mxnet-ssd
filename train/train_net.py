@@ -61,7 +61,7 @@ def get_optimizer_params(optimizer=None, learning_rate=None, momentum=None,
 
 
 def get_lr_scheduler(learning_rate, lr_refactor_step, lr_refactor_ratio,
-                     num_example, batch_size, begin_epoch):
+                     num_example, batch_size, begin_epoch, kv_store_type='divice', kv=None):
     """
     Compute learning rate and refactor scheduler
 
@@ -79,6 +79,10 @@ def get_lr_scheduler(learning_rate, lr_refactor_step, lr_refactor_ratio,
         training batch size
     begin_epoch : int
         starting epoch
+    kv_store_type: str
+        key-value store type
+    kv:
+        key-value store
 
     Returns:
     ---------
@@ -92,7 +96,7 @@ def get_lr_scheduler(learning_rate, lr_refactor_step, lr_refactor_ratio,
         lr = learning_rate
         epoch_size = num_example // batch_size
 
-        if 'dist' in args.kv_store:
+        if 'dist' in kv_store_type:
             epoch_size /= kv.num_workers
 
         for s in iter_refactor:
@@ -281,7 +285,7 @@ def train_net(network, train_path, num_classes, batch_size,
                 else:
                     if not 'pred' in k:
                         fixed_param_names.append(k)
-    elif pretrained != "null":
+    elif os.path.exists(pretrained):
         logger.info("Start training with {} from pretrained model {}"
                     .format(ctx_str, pretrained))
         _, args, auxs = mx.model.load_checkpoint(pretrained, epoch)
@@ -343,11 +347,10 @@ def train_net(network, train_path, num_classes, batch_size,
     # since it is resetting the metric evaluation every $frequent batches
     batch_end_callback.append(mx.callback.Speedometer(train_iter.batch_size, frequent=frequent))
 
-    learning_rate, lr_scheduler = get_lr_scheduler(learning_rate, lr_refactor_step,
-                                                   lr_refactor_ratio, num_example, batch_size, begin_epoch)
+    learning_rate, lr_scheduler = get_lr_scheduler(learning_rate, lr_refactor_step, lr_refactor_ratio, num_example, batch_size, begin_epoch, kv_store, kv)
     # add possibility for different optimizer
-    opt, opt_params = get_optimizer_params(optimizer=optimizer, learning_rate=learning_rate, momentum=momentum,
-                                           weight_decay=weight_decay, lr_scheduler=lr_scheduler, ctx=ctx, logger=logger)
+    opt, opt_params = get_optimizer_params(optimizer=optimizer, learning_rate=learning_rate, momentum=momentum, weight_decay=weight_decay, lr_scheduler=lr_scheduler, ctx=ctx, logger=logger)
+
     # TODO monitor the gradient flow as in 'https://github.com/dmlc/tensorboard/blob/master/docs/tutorial/understanding-vanish-gradient.ipynb'
     monitor = mx.mon.Monitor(iter_monitor, pattern=monitor_pattern) if iter_monitor > 0 else None
 
