@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument('--prefix', dest='prefix', help='new model prefix',
                         default=os.path.join(os.getcwd(), 'output', 'exp1', 'ssd'), type=str)
     parser.add_argument('--gpus', dest='gpus', help='GPU devices to train with',
-                        default='0', type=str)
+                        default=None, type=str)
     parser.add_argument('--begin-epoch', dest='begin_epoch', help='begin epoch of training',
                         default=0, type=int)
     parser.add_argument('--end-epoch', dest='end_epoch', help='end epoch of training',
@@ -128,8 +128,9 @@ def parse_class_names(args):
 if __name__ == '__main__':
     args = parse_args()
     # context list
-    ctx = [mx.gpu(int(i)) for i in args.gpus.split(',') if i.strip()]
-    ctx = [mx.cpu()] if not ctx else ctx
+    ctx = [mx.cpu()] if args.gpus is None or args.gpus == "" else [
+        mx.gpu(int(i)) for i in args.gpus.split(',')]
+
     # class names if applicable
     class_names = parse_class_names(args)
     # start training
