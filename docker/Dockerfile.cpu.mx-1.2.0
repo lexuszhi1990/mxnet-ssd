@@ -6,7 +6,7 @@ RUN     apt-get update && apt-get install -y \
         python-tk
 
 
-RUN     pip3 install matplotlib scipy graphviz tensorboardX future
+RUN     pip3.6 install matplotlib scipy graphviz tensorboardX future
 
 RUN     git clone -b dist https://github.com/lexuszhi1990/mxnet-ssd.git /app
 
