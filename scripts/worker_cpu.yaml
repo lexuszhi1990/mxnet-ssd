@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: worker
+spec:
+  template:
+    metadata:
+      name: worker
+      labels:
+        app: worker
+    spec:
+      containers:
+      - name: worker
+        image: mxnet-cu90/python:1.2.0-dev
+        imagePullPolicy: IfNotPresent
+        command: ['bash']
+        volumeMounts:
+        - mountPath: /mnt/data
+          name: gfs-dataset-claim
+      volumes:
+      - name: dataset-claim
+        persistentVolumeClaim:
+          claimName: gfs-dataset-claim
+      restartPolicy: OnFailure
+      nodeSelector:
+        test: gpu

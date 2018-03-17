@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: scheduler
+spec:
+  template:
+    metadata: 
+      name: scheduler
+      labels:
+        app: scheduler
+    spec:
+      containers:
+      - name: scheduler
+        image: mxnet:1.0.0
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: /mnt/glusterfs
+          name: glustervol
+      volumes:
+        - name: glustervol
+          glusterfs:
+            endpoints: glusterfs-cluster
+            path: gv-test
+            readOnly: false
+      restartPolicy: Never

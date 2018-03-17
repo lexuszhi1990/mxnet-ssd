@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: worker
+spec:
+  template:
+    metadata:
+      name: worker
+      labels:
+        app: worker
+    spec:
+      containers:
+      - name: worker
+        image: mxnet-cu90-ssd:v0.1
+        imagePullPolicy: IfNotPresent
+        command: ['sleep', '3000']
+        volumeMounts:
+        - mountPath: /mnt/data
+          name: dataset-claim
+        - mountPath: /mnt/jobs
+          name: jobs-claim
+        - mountPath: /mnt/models
+          name: models-claim
+      volumes:
+        - name: dataset-claim
+          persistentVolumeClaim:
+            claimName: gfs-dataset-claim
+        - name: jobs-claim
+          persistentVolumeClaim:
+            claimName: gfs-jobs-claim
+        - name: models-claim
+          persistentVolumeClaim:
+            claimName: gfs-models-claim
+      restartPolicy: OnFailure
