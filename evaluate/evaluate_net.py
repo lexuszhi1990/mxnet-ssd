@@ -94,8 +94,6 @@ def evaluate_net(net, path_imgrec, num_classes, mean_pixels, data_shape,
         metric = MApMetric(ovp_thresh, use_difficult, class_names,
                             roc_output_path=os.path.join(os.path.dirname(model_prefix), 'roc'))
     results = mod.score(eval_iter, metric, num_batch=None,
-                        batch_end_callback=mx.callback.Speedometer(batch_size,
-                                                                   frequent=frequent,
-                                                                   auto_reset=False))
+                        batch_end_callback=mx.callback.Speedometer(batch_size, frequent=frequent, auto_reset=False))
     for k, v in results:
         print("{}: {}".format(k, v))
