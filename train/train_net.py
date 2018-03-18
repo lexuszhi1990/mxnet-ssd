@@ -10,7 +10,7 @@ from train.metric import MultiBoxMetric
 from evaluate.eval_metric import MApMetric, VOC07MApMetric
 from config.config import cfg
 from symbol.symbol_factory import get_symbol_train
-from evaluate.custom_callbacks import LogDistributionsCallback, LogROCCallback, ParseLogCallback, LogDetectionsCallback
+from evaluate.custom_callbacks import LogDistributionsCallback, LogROCCallback, ParseLogCallback, LogDetectionsCallback, LogMetricsCallback
 from tools.visualize_net import net_visualization
 
 def convert_pretrained(name, args):
@@ -334,7 +334,7 @@ def train_net(network, train_path, num_classes, batch_size,
                              scalar_logging_dir=os.path.join(tensorboard_dir, 'train', 'scalar'),
                              logfile_path=log_file_path, batch_size=batch_size, iter_monitor=iter_monitor,
                              frequent=frequent))
-        eval_end_callback.append(mx.contrib.tensorboard.LogMetricsCallback(
+        eval_end_callback.append(LogMetricsCallback(
             os.path.join(tensorboard_dir, 'val/scalar'), 'ssd'))
         eval_end_callback.append(LogROCCallback(logging_dir=os.path.join(tensorboard_dir, 'val/roc'),
                                                 roc_path=os.path.join(os.path.dirname(prefix), 'roc'),
