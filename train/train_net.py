@@ -336,12 +336,8 @@ def train_net(network, train_path, num_classes, batch_size,
                              frequent=frequent))
         eval_end_callback.append(LogMetricsCallback(
             os.path.join(tensorboard_dir, 'val/scalar'), 'ssd'))
-        eval_end_callback.append(LogROCCallback(logging_dir=os.path.join(tensorboard_dir, 'val/roc'),
-                                                roc_path=os.path.join(os.path.dirname(prefix), 'roc'),
-                                                class_names=class_names))
-        eval_end_callback.append(LogDetectionsCallback(logging_dir=os.path.join(tensorboard_dir, 'val/images'),
-                                                       images_path=os.path.join(os.path.dirname(prefix), 'images'),
-                                                       class_names=class_names,batch_size=batch_size,mean_pixels=mean_pixels))
+        eval_end_callback.append(LogROCCallback(logging_dir=os.path.join(tensorboard_dir, 'val/roc'), roc_path=os.path.join(os.path.dirname(prefix), 'roc'), class_names=class_names))
+        eval_end_callback.append(LogDetectionsCallback(logging_dir=os.path.join(tensorboard_dir, 'val/images'), images_path=os.path.join(os.path.dirname(prefix), 'images'), class_names=class_names,batch_size=batch_size,mean_pixels=mean_pixels))
 
     # this callback should be the last in a serie of batch_callbacks
     # since it is resetting the metric evaluation every $frequent batches
