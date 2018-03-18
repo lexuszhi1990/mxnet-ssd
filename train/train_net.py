@@ -285,7 +285,7 @@ def train_net(network, train_path, num_classes, batch_size,
                 else:
                     if not 'pred' in k:
                         fixed_param_names.append(k)
-    elif os.path.exists(pretrained):
+    elif pretrained and os.path.exists(pretrained):
         logger.info("Start training with {} from pretrained model {}"
                     .format(ctx_str, pretrained))
         _, args, auxs = mx.model.load_checkpoint(pretrained, epoch)
