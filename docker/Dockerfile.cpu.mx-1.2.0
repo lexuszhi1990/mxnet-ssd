@@ -1,5 +1,7 @@
 FROM    mxnet/python:1.2.0-dev
 MAINTAINER DavidFu <lexuszhi1990@gmail.com>
+# build command:
+# docker build --network host -t mxnet-ssd:v0.1 -f docker/Dockerfile.cpu.mx-1.2.0 .
 
 RUN     apt-get update && apt-get install -y \
         graphviz \
