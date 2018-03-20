@@ -3,15 +3,8 @@ MAINTAINER DavidFu <lexuszhi1990@gmail.com>
 # build command:
 # docker build --network host -t mxnet-ssd:v0.1 -f docker/Dockerfile.cpu.mx-1.2.0 .
 
-RUN     apt-get update && apt-get install -y \
-        graphviz \
-        python-tk
+RUN     pip3.6 install opencv-python matplotlib scipy graphviz tensorboardX
 
-
-RUN     pip3.6 install matplotlib scipy graphviz tensorboardX future
-
-RUN     git clone -b dist https://github.com/lexuszhi1990/mxnet-ssd.git /app
+RUN     git clone https://github.com/lexuszhi1990/mxnet-ssd.git -b dist /app
 
 WORKDIR /app
-
-# RUN python train.py --train-path data/pedestrian/train.rec --val-path data/pedestrian/val.rec --gpus 0 --batch-size 28 --lr 0.01 --network resnet50 --freeze '' --pretrained ./model/ssd_resnet50_512 --epoch 0 --tensorboard True --num-class 1 --class-names person
