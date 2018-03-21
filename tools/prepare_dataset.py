@@ -7,6 +7,7 @@ curr_path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(curr_path, '..'))
 from dataset.pascal_voc import PascalVoc
 from dataset.mscoco import Coco
+from dataset.bike import Bike
 from dataset.concat_db import ConcatDB
 
 def load_pascal(image_set, year, devkit_path, shuffle=False, class_names=None, true_negative=None):
@@ -101,6 +102,10 @@ if __name__ == '__main__':
         db.save_imglist(args.target, root=args.root_path)
     elif args.dataset == 'coco':
         db = load_coco(args.set, args.root_path, args.shuffle)
+        print("saving list to disk...")
+        db.save_imglist(args.target, root=args.root_path)
+    elif args.dataset == 'bike':
+        db = Bike(args.set, args.root_path, class_names=args.class_names, shuffle=args.shuffle)
         print("saving list to disk...")
         db.save_imglist(args.target, root=args.root_path)
     else:
