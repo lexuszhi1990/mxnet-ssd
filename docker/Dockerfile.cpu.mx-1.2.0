@@ -1,10 +1,13 @@
 FROM    mxnet/python:1.2.0-dev
 MAINTAINER DavidFu <lexuszhi1990@gmail.com>
 # build command:
-# docker build --network host -t mxnet-ssd:v0.1 -f docker/Dockerfile.cpu.mx-1.2.0 .
+# docker build --rm --network host -t mxnet-ssd-bike:v0.1 -f docker/Dockerfile.cpu.mx-1.2.0 .
+
+RUN apt-get -y install python3-tk
 
 RUN     pip3.6 install opencv-python matplotlib scipy graphviz tensorboardX
 
-RUN     git clone https://code.aliyun.com/85343435/mxnet-ssd-mirror.git -b dist /app
+# RUN     git clone https://code.aliyun.com/85343435/mxnet-ssd-mirror.git -b dist /app
+ADD . /app
 
 WORKDIR /app

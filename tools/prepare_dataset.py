@@ -7,6 +7,7 @@ curr_path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(curr_path, '..'))
 from dataset.pascal_voc import PascalVoc
 from dataset.mscoco import Coco
+from dataset.bike import Bike
 from dataset.concat_db import ConcatDB
 
 def load_pascal(image_set, year, devkit_path, shuffle=False, class_names=None, true_negative=None):
@@ -103,16 +104,17 @@ if __name__ == '__main__':
         db = load_coco(args.set, args.root_path, args.shuffle)
         print("saving list to disk...")
         db.save_imglist(args.target, root=args.root_path)
+    elif args.dataset == 'bike':
+        db = Bike(args.set, args.root_path, class_names=args.class_names, shuffle=args.shuffle)
+        print("saving list to disk...")
+        db.save_imglist(args.target, root=args.root_path)
     else:
         raise NotImplementedError("No implementation for dataset: " + args.dataset)
 
     print("List file {} generated...".format(args.target))
 
-    im2rec_path = os.path.join(mxnet.__path__[0], 'tools/im2rec.py')
-    # final validation - sometimes __path__ (or __file__) gives 'mxnet/python/mxnet' instead of 'mxnet'
-    if not os.path.exists(im2rec_path):
-        im2rec_path = os.path.join(os.path.dirname(os.path.dirname(mxnet.__path__[0])), 'tools/im2rec.py')
-    subprocess.check_call(["python", im2rec_path,
+    im2rec_path = os.path.join(os.getcwd(), 'tools/im2rec.py')
+    subprocess.check_call(["python3.6", im2rec_path,
         os.path.abspath(args.target), os.path.abspath(args.root_path), "--pack-label"])
 
     print("Record file {} generated...".format(args.target.split('.')[0] + '.rec'))

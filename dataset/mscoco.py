@@ -97,12 +97,27 @@ class Coco(Imdb):
                 cat_id = int(anno["category_id"])
                 bbox = anno["bbox"]
                 assert len(bbox) == 4
-                if cat_id == 1:
+                base_cat_id = None
+
+                # {id: 1, name: person, supercategory: person}
+                # {id: 2, name: bicycle, supercategory: vehicle}
+                # {id: 4, name: motorcycle, supercategory: vehicle}
+                # if cat_id == 1:
+                #   base_cat_id = 0
+                # if cat_id == 2:
+                #     base_cat_id = 0
+                # elif cat_id == 4:
+                #     base_cat_id = 1
+                if cat_id == 2 or cat_id == 4:
+                    base_cat_id = 0
+
+                if base_cat_id is not None:
                     xmin = float(bbox[0]) / width
                     ymin = float(bbox[1]) / height
                     xmax = xmin + float(bbox[2]) / width
                     ymax = ymin + float(bbox[3]) / height
-                    label.append([0, xmin, ymin, xmax, ymax, 0])
+                    label.append([base_cat_id, xmin, ymin, xmax, ymax, 0])
+
             if label:
                 labels.append(np.array(label))
                 image_set_index.append(filename)
