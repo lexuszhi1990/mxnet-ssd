@@ -110,7 +110,7 @@ def get_lr_scheduler(learning_rate, lr_refactor_step, lr_refactor_ratio,
         lr_scheduler = mx.lr_scheduler.MultiFactorScheduler(step=steps, factor=lr_refactor_ratio)
         return (lr, lr_scheduler)
 
-def save_model(model_prefix, rank=0):
+def _save_model(model_prefix, rank=0):
     if model_prefix is None:
         return None
     dst_dir = os.path.dirname(model_prefix)
@@ -118,6 +118,15 @@ def save_model(model_prefix, rank=0):
         os.mkdir(dst_dir)
     return mx.callback.do_checkpoint(model_prefix if rank == 0 else "%s-%d" % (
         model_prefix, rank))
+
+def _load_model(model_prefix, load_epoch, rank=0):
+    assert model_prefix is not None
+    if rank > 0 and os.path.exists("%s-%d-symbol.json" % (model_prefix, rank)):
+        model_prefix += "-%d" % (rank)
+    sym, arg_params, aux_params = mx.model.load_checkpoint(
+        model_prefix, load_epoch)
+    logging.info('Loaded model %s_%04d.params', model_prefix, load_epoch)
+    return (sym, arg_params, aux_params)
 
 def train_net(network, train_path, num_classes, batch_size,
               data_shape, mean_pixels, resume, finetune, pretrained, epoch,
@@ -317,7 +326,7 @@ def train_net(network, train_path, num_classes, batch_size,
 
     batch_end_callback = []
     eval_end_callback = []
-    epoch_end_callback = [save_model(prefix, kv.rank)]
+    epoch_end_callback = [_save_model(prefix, kv.rank)]
 
     # add logging to tensorboard
 
