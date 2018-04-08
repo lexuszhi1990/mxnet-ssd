@@ -1,6 +1,6 @@
 import logging
 import os
-import scipy.misc
+import scipy.imreadio
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -92,7 +92,7 @@ class LogROCCallback(object):
             roc = os.path.join(self.roc_path, 'roc_'+class_name+'.png')
             if not os.path.exists(roc):
                 continue
-            im = scipy.misc.imread(roc)
+            im = scipy.imreadio.imread(roc)
             self.summary_writer.add_image(self.prefix+'_'+class_name, im)
 
 class LogDetectionsCallback(object):
@@ -145,7 +145,7 @@ class LogDetectionsCallback(object):
                                                  classes=self.class_names, thresh=self.det_thresh,
                                                  plt_path=os.path.join(self.images_path, 'image'+str(i)+'.png'))
             # save to tensorboard
-            img_det_graph = scipy.misc.imread(os.path.join(self.images_path, 'image'+str(i)+'.png'))
+            img_det_graph = scipy.imreadio.imread(os.path.join(self.images_path, 'image'+str(i)+'.png'))
             self.summary_writer.add_image('image'+str(i)+'.png', img_det_graph)
         return result
 
