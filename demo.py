@@ -1,8 +1,12 @@
-import argparse
-import tools.find_mxnet
-import mxnet as mx
+# -*- coding: utf-8 -*-
+
 import os
 import sys
+from pathlib import Path
+import argparse
+import mxnet as mx
+
+import tools.find_mxnet
 from detect.detector import Detector
 from symbol.symbol_factory import get_symbol
 
@@ -106,8 +110,12 @@ if __name__ == '__main__':
         ctx = mx.gpu(args.gpu_id)
 
     # parse image list
-    image_list = [i.strip() for i in args.images.split(',')]
-    assert len(image_list) > 0, "No valid image specified to detect"
+    # image_list = [i.strip() for i in args.images.split(',')]
+    # assert len(image_list) > 0, "No valid image specified to detect"
+    if args.dir is not None and Path(args.dir).exists():
+        image_list = [i.as_posix() for i in Path(args.dir).glob("*.jpg")]
+    else:
+        image_list = [i.strip() for i in args.images.split(',')]
 
     network = None if args.deploy_net else args.network
     class_names = parse_class_names(args.class_names)
