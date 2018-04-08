@@ -1,4 +1,4 @@
-from __future__ import print_function
+from pathlib import Path
 import mxnet as mx
 import numpy as np
 from timeit import default_timer as timer
@@ -99,7 +99,7 @@ class Detector(object):
                             is_train=False)
         return self.detect(test_iter, show_timer)
 
-    def visualize_detection(self, img, dets, classes=[], thresh=0.6):
+    def visualize_detection(self, img, dets, image_posix_path, classes=[], thresh=0.6):
         """
         visualize detections in one image
 
@@ -115,6 +115,8 @@ class Detector(object):
         thresh : float
             score threshold
         """
+        import matplotlib
+        matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         import random
         plt.imshow(img)
@@ -144,7 +146,11 @@ class Detector(object):
                                     '{:s} {:.3f}'.format(class_name, score),
                                     bbox=dict(facecolor=colors[cls_id], alpha=0.5),
                                     fontsize=12, color='white')
-        plt.show()
+        # plt.show()
+        img_path = Path(image_posix_path)
+        demo_path = img_path.parent.joinpath(img_path.stem + '_demo.jpg')
+        print("save demo image at %s" % demo_path)
+        plt.clf()
 
     def detect_and_visualize(self, im_list, root_dir=None, extension=None,
                              classes=[], thresh=0.6, show_timer=False):
@@ -173,4 +179,4 @@ class Detector(object):
         for k, det in enumerate(dets):
             img = cv2.imread(im_list[k])
             img[:, :, (0, 1, 2)] = img[:, :, (2, 1, 0)]
-            self.visualize_detection(img, det, classes, thresh)
+            self.visualize_detection(img, det, im_list[k], classes, thresh)

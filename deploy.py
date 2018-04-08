@@ -15,6 +15,8 @@ def parse_args():
                         default=0, type=int)
     parser.add_argument('--prefix', dest='prefix', help='trained model prefix',
                         default=os.path.join(os.getcwd(), 'model', 'ssd_'), type=str)
+    parser.add_argument('--save_path', dest='save_path', help='trained model save_path',
+                        default=None, type=str)
     parser.add_argument('--data-shape', dest='data_shape', type=int, default=300,
                         help='data shape')
     parser.add_argument('--num-class', dest='num_classes', help='number of classes',
@@ -38,9 +40,9 @@ if __name__ == '__main__':
     else:
         prefix = args.prefix
     _, arg_params, aux_params = mx.model.load_checkpoint(prefix, args.epoch)
-    # new name
-    tmp = prefix.rsplit('/', 1)
-    save_prefix = '/deploy_'.join(tmp)
+    if args.save_path is None:
+        tmp = prefix.rsplit('/', 1)
+        save_prefix = '/deploy_'.join(tmp)
     mx.model.save_checkpoint(save_prefix, args.epoch, net, arg_params, aux_params)
     print("Saved model: {}-{:04d}.params".format(save_prefix, args.epoch))
     print("Saved symbol: {}-symbol.json".format(save_prefix))
