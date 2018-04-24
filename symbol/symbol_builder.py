@@ -11,7 +11,7 @@ def import_module(module_name):
 
 def get_symbol_train(network, num_classes, from_layers, num_filters, strides, pads,
                      sizes, ratios, normalizations=-1, steps=[], min_filter=128,
-                     nms_thresh=0.5, force_suppress=False, nms_topk=400, minimum_negative_samples=0, **kwargs):
+                     nms_thresh=0.5, threshold=0.5, background_id=0, force_suppress=False, nms_topk=400, minimum_negative_samples=0, **kwargs):
     """Build network symbol for training SSD
 
     Parameters
@@ -102,7 +102,8 @@ def get_symbol_train(network, num_classes, from_layers, num_filters, strides, pa
 
 def get_symbol(network, num_classes, from_layers, num_filters, sizes, ratios,
                strides, pads, normalizations=-1, steps=[], min_filter=128,
-               nms_thresh=0.5, force_suppress=False, nms_topk=400, **kwargs):
+               threshold=0.5, background_id=0, nms_thresh=0.5,
+               force_suppress=False, nms_topk=400, **kwargs):
     """Build network for testing SSD
 
     Parameters
@@ -142,6 +143,10 @@ def get_symbol(network, num_classes, from_layers, num_filters, sizes, ratios,
         minimum number of filters used in 1x1 convolution
     nms_thresh : float
         non-maximum suppression threshold
+    threshold : float
+        Threshold to be a positive prediction
+    background_id: int
+        Background id
     force_suppress : boolean
         whether suppress different class objects
     nms_topk : int
@@ -162,7 +167,11 @@ def get_symbol(network, num_classes, from_layers, num_filters, sizes, ratios,
 
     cls_prob = mx.symbol.SoftmaxActivation(data=cls_preds, mode='channel', \
         name='cls_prob')
-    out = mx.contrib.symbol.MultiBoxDetection(*[cls_prob, loc_preds, anchor_boxes], \
+    output = mx.symbol.contrib.MultiBoxDetection(*[cls_prob, loc_preds, anchor_boxes],
         name="detection", nms_threshold=nms_thresh, force_suppress=force_suppress,
-        variances=(0.1, 0.1, 0.2, 0.2), nms_topk=nms_topk)
-    return out
+        variances=(0.1, 0.1, 0.2, 0.2), nms_topk=nms_topk, threshold=threshold, background_id=background_id
+        )
+    if nms_topk > 0:
+        output=output.slice_axis(axis=1, begin=0, end=nms_topk, name='output_topk')
+    return output
+

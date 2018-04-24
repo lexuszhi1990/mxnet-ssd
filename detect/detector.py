@@ -150,6 +150,7 @@ class Detector(object):
         img_path = Path(image_posix_path)
         demo_path = img_path.parent.joinpath(img_path.stem + '_demo.jpg')
         print("save demo image at %s" % demo_path)
+        plt.savefig(demo_path)
         plt.clf()
 
     def detect_and_visualize(self, im_list, root_dir=None, extension=None,

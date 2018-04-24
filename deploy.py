@@ -19,6 +19,10 @@ def parse_args():
                         default=None, type=str)
     parser.add_argument('--data-shape', dest='data_shape', type=int, default=300,
                         help='data shape')
+    parser.add_argument('--threshold', dest='threshold', type=float, default=0.55,
+                        help='Threshold to be a positive prediction')
+    parser.add_argument('--background_id', dest='background_id', type=int, default=-1,
+                        help='Background id')
     parser.add_argument('--num-class', dest='num_classes', help='number of classes',
                         default=20, type=int)
     parser.add_argument('--nms', dest='nms_thresh', type=float, default=0.5,
@@ -33,7 +37,7 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     net = get_symbol(args.network, args.data_shape,
-        num_classes=args.num_classes, nms_thresh=args.nms_thresh,
+        num_classes=args.num_classes, nms_thresh=args.nms_thresh, threshold=args.threshold, background_id=args.background_id,
         force_suppress=args.force_nms, nms_topk=args.nms_topk)
     if args.prefix.endswith('_'):
         prefix = args.prefix + args.network + '_' + str(args.data_shape)
