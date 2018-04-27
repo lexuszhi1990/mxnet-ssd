@@ -154,11 +154,11 @@ class Detector(object):
         score = det["score"]
         cls_id = det["category_id"]
         if cls_id not in colors:
-          colors[cls_id] = (random.random(), random.random(), random.random())
+          colors[cls_id] = (int(random.random()*255), int(random.random()*255), int(random.random()*255))
         left, top = int(box[0] * width), int(box[1] * height)
         right, bottom = int(box[2] * width), int(box[3] * height)
         cv2.rectangle(draw, (left, top), (right, bottom), colors[cls_id], 1)
-        cv2.putText(draw, '%.3f'%score, (left, top+30), cv2.FONT_HERSHEY_SIMPLEX, 1, colors[cls_id], 2)
+        cv2.putText(draw, '%.3f'%score, (left, top+30), cv2.FONT_HERSHEY_SIMPLEX, 1, colors[cls_id], 1)
 
       img_path = Path(self.img_path)
       save_path = img_path.parent.joinpath(img_path.stem + '_result.png')
