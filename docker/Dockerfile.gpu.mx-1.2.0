@@ -3,7 +3,7 @@ MAINTAINER DavidFu <lexuszhi1990@gmail.com>
 # build command:
 # docker build --rm --network host -t mxnet-ssd-bike:v0.1 -f docker/Dockerfile.gpu.mx-1.2.0 .
 
-RUN apt-get -y install python3-tk
+RUN     apt-get -y install python3-tk
 
 RUN     pip3.6 install opencv-python matplotlib scipy graphviz tensorboardX
 

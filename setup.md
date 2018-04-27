@@ -10,19 +10,25 @@ pip install -i https://mirrors.aliyun.com/pypi/simple/ mxnet-cu80 opencv-python 
 
 ### start docker env
 
+#### on 177 server:
 start cpu docker image:
-
-`docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-pedestrian:/app -v /mnt/gf_mnt/datasets:/mnt/datasets -v /mnt/gf_mnt/jobs:/mnt/jobs  mxnet-ssd:v0.1 bash`
+`docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-pedestrian:/app -v /mnt/gf_mnt/datasets:/mnt/datasets -v /mnt/gf_mnt/jobs:/mnt/jobs mxnet-ssd:v0.1 bash`
 
 start gpu docker image:
-
 `docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-pedestrian:/app -v /mnt/gf_mnt/datasets:/mnt/datasets -v /mnt/gf_mnt/jobs:/mnt/jobs  mxnet-cu90-ssd:v0.1 bash`
 
+#### on 172 server:
+`docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-pedestrian:/app -v /mnt/gf_mnt/datasets:/gfs/fl/datasets -v /mnt/gf_mnt/jobs:/gfs/fl/jobs  mxnet-cu90-ssd:v0.1 bash`
 
 ### train
 
+python3.6 train.py --train-path /gfs/fl/datasets/coco_person/train.rec --val-path /gfs/fl/datasets/coco_person/val.rec --prefix /gfs/fl/jobs/vgg16_reduced-v1/ssd --batch-size 8 --data-shape 512 --label-width 512 --lr 0.001 --network vgg16_reduced --tensorboard True --num-class 1 --class-names person --gpu 0
 
+distributed train:
 
+```
+python3.6 train.py --train-path /gfs/fl/datasets/coco_person/train.rec --val-path /gfs/fl/datasets/coco_person/val.rec --prefix /gfs/fl/jobs/vgg16_reduced-v1/ssd --batch-size 16 --data-shape 512 --label-width 512 --lr 0.001 --network vgg16_reduced --tensorboard True --num-class 1 --class-names person --gpu 0 --kv-store=dist_device_sync
+```
 
 ### evaluate
 
