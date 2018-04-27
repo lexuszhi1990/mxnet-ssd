@@ -43,6 +43,8 @@ gpu:
 
 `python3.6 deploy.py --network densenet-tiny --prefix ./upload/model/V1/deploy_ssd-densenet-tiny-ebike-detection --epoch 128  --num-class 2 --topk 400 --threshold 0.30`
 
+`python3.6 deploy.py --network vgg16_reduced --data-shape 512 --prefix /mnt/jobs/vgg16_reduced-v1/ssd --epoch 19  --num-class 1 --topk 100 --threshold 0.30`
+
 
 ### demo
 

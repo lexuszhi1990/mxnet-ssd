@@ -1,5 +1,6 @@
 # User defined
 data/*
+data/demo/*_result.png
 !data/demo/
 model/*
 !model/README.md
@@ -138,6 +139,9 @@ celerybeat-schedule
 # virtualenv
 venv/
 ENV/
+ssd-env
+dev
+output
 
 # ide project settings
 .spyderproject
@@ -146,7 +150,5 @@ ENV/
 # Rope project settings
 .ropeproject
 
-ssd-env
-dev
-
-output
+# deploy
+deploy/c++/build
