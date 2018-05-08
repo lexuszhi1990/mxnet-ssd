@@ -8,6 +8,14 @@ pip install --upgrade pip
 
 pip install -i https://mirrors.aliyun.com/pypi/simple/ mxnet-cu80 opencv-python matplotlib pyyaml
 
+### setup glusterfs
+
+sudo mount -t glusterfs node1:/my_pg /mnt/gf_mnt/my_pg
+sudo mount -t glusterfs node1:/jobs /mnt/gf_mnt/jobs
+sudo mount -t glusterfs node1:/datasets /mnt/gf_mnt/datasets
+sudo mount -t glusterfs node1:/models /mnt/gf_mnt/models
+sudo mount -t glusterfs node1:/scripts /mnt/gf_mnt/scripts
+
 ### start docker env
 
 #### on 177 server:
@@ -22,13 +30,16 @@ start gpu docker image:
 
 ### train
 
-python3.6 train.py --train-path /gfs/fl/datasets/coco_person/train.rec --val-path /gfs/fl/datasets/coco_person/val.rec --prefix /gfs/fl/jobs/vgg16_reduced-v1/ssd --batch-size 8 --data-shape 512 --label-width 512 --lr 0.001 --network vgg16_reduced --tensorboard True --num-class 1 --class-names person --gpu 0
+python3.6 train.py --train-path /mnt/datasets/coco_person/train.rec --val-path /mnt/datasets/coco_person/val.rec --prefix /mnt/jobs/vgg16_reduced-v1/ssd --batch-size 8 --data-shape 512 --label-width 512 --lr 0.001 --network vgg16_reduced --tensorboard True --num-class 1 --class-names person --gpu 0
 
 distributed train:
-
 ```
 python3.6 train.py --train-path /gfs/fl/datasets/coco_person/train.rec --val-path /gfs/fl/datasets/coco_person/val.rec --prefix /gfs/fl/jobs/vgg16_reduced-v1/ssd --batch-size 16 --data-shape 512 --label-width 512 --lr 0.001 --network vgg16_reduced --tensorboard True --num-class 1 --class-names person --gpu 0 --kv-store=dist_device_sync
 ```
+
+arbitrary shape
+
+`python3.6 train.py --train-path /mnt/datasets/coco_person/train.rec --val-path /mnt/datasets/coco_person/val.rec --prefix /mnt/jobs/densenet-tiny-v1/ssd --batch-size 8 --data-shape 430 270 --label-width 430 --lr 0.001 --network densenet-tiny --tensorboard True --num-class 1 --class-names person --gpu 0`
 
 ### evaluate
 
@@ -36,14 +47,20 @@ cpu:
 `python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job2/ssd-1-1 --epoch 70 --cpu --voc07`
 
 gpu:
-`python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job2/ssd-1-1 --epoch 70 --gpu 0`
+`python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job2/ssd --epoch 70 --gpu 0`
+
+`python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job1/ssd- --epoch 128 --gpu 0`
+
+`python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job1/ssd--1- --epoch 128 --gpu 0`
+
+`python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network vgg16_reduced --data-shape 512 --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/vgg16_reduced-v1/ssd --epoch 20 --gpu 0 --voc07 True`
 
 
 ### deploy
 
-`python3.6 deploy.py --network densenet-tiny --prefix ./upload/model/V1/deploy_ssd-densenet-tiny-ebike-detection --epoch 128  --num-class 2 --topk 400 --threshold 0.30`
+`python3.6 deploy.py --network densenet-tiny --prefix /mnt/jobs/job1/ssd- --epoch 231  --num-class 1 --topk 400 --threshold 0.30`
 
-`python3.6 deploy.py --network vgg16_reduced --data-shape 512 --prefix /mnt/jobs/vgg16_reduced-v1/ssd --epoch 19  --num-class 1 --topk 100 --threshold 0.30`
+`python3.6 deploy.py --network vgg16_reduced --data-shape 512 --prefix /mnt/jobs/vgg16_reduced-v1/ssd  --num-class 1 --topk 100 --threshold 0.30 --epoch 20`
 
 
 ### demo

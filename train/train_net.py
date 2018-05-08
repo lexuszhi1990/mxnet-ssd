@@ -241,6 +241,11 @@ def train_net(network, train_path, num_classes, batch_size,
     # check args
     if isinstance(data_shape, int):
         data_shape = (3, data_shape, data_shape)
+    elif isinstance(data_shape, list):
+        data_shape = (3, int(data_shape[1]), int(data_shape[0]))
+    else:
+        raise RuntimeError("un-support data shape")
+
     assert len(data_shape) == 3 and data_shape[0] == 3
     if prefix.endswith('_'):
         prefix += '_' + str(data_shape[1])

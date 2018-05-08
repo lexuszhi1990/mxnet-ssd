@@ -29,7 +29,7 @@ def conv_act_layer(from_layer, name, num_filter, kernel=(1,1), pad=(0,0), \
     ----------
     (conv, relu) mx.Symbols
     """
-    bias = mx.symbol.Variable(name="{}_conv_bias".format(name),   
+    bias = mx.symbol.Variable(name="{}_conv_bias".format(name),
         init=mx.init.Constant(0.0), attr={'__lr_mult__': '2.0'})
     conv = mx.symbol.Convolution(data=from_layer, kernel=kernel, pad=pad, \
         stride=stride, num_filter=num_filter, name="{}_conv".format(name), bias=bias)
@@ -239,7 +239,7 @@ def multibox_layer(from_layers, num_classes, sizes=[.2, .95],
         ratio = ratios[k]
         assert len(ratio) > 0, "must provide at least one ratio"
         ratio_str = "(" + ",".join([str(x) for x in ratio]) + ")"
-        num_anchors = len(size) -1 + len(ratio)
+        num_anchors = len(size) - 1 + len(ratio)
 
         # create location prediction layer
         num_loc_pred = num_anchors * 4

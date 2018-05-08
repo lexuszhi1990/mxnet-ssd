@@ -172,7 +172,7 @@ def main(*args, **kwargs):
       return
 
     start = time.clock()
-    ped_detector = Detector(symbol=None, model_prefix='/mnt/jobs/vgg16_reduced-v1/deploy_ssd', epoch=19, data_shape=512, img_path=img_path, threshold=0.45, ctx=mx.cpu(4))
+    ped_detector = Detector(symbol=None, model_prefix='/mnt/jobs/job1/deploy_ssd-', epoch=231, img_path=img_path, threshold=0.45, ctx=mx.cpu(4))
     ped_detector.im_detect()
     print("total time used: %.4fs" % (time.clock()-start))
     ped_detector.save_results()
