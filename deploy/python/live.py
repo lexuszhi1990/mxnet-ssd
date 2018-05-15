@@ -135,6 +135,7 @@ class Detector(object):
         start = time.clock()
         total_dets_np = total_dets.asnumpy()
         selected_dets = total_dets_np[total_dets_np[:, 0] == 1]
+        selected_dets = selected_dets[selected_dets[:, 1] >= self.threshold]
         picked_ids = self.nms(selected_dets, overlap_threshold=0.5)
         self.dets = selected_dets[picked_ids]
         print("results post-processing costs: %dms" % millisecond(time.clock()-start))
@@ -170,7 +171,6 @@ def main(*args, **kwargs):
     # video_path = '../../data/videos/ch01_20180508113155.mp4'
     assert Path(video_path).exists(), "%s not exists" % video_path
 
-    frame_num = 0
     epoch_num = 128
     threshold = 0.65
     data_shape = 300
@@ -179,8 +179,9 @@ def main(*args, **kwargs):
     # model_prefix = '/app/model/deploy_ssd-densenet-two-bikes'
     model_prefix = '/app/model/deploy_deploy_ssd-densenet-tiny-ebike-detection-nms'
     ped_detector = Detector(symbol=None, model_prefix=model_prefix, epoch=epoch_num, threshold=threshold, data_shape=data_shape, ctx=ctx)
-    cap = cv2.VideoCapture(video_path)
 
+    cap = cv2.VideoCapture(video_path)
+    frame_num = 0
     while(cap.isOpened()):
         ret, frame = cap.read()
         if frame is None:
@@ -191,7 +192,7 @@ def main(*args, **kwargs):
             start = time.clock()
             ped_detector.im_detect(frame)
             print("total time used: %.4fs" % (time.clock()-start))
-            ped_detector.save_results(frame, frame_num, 'noon-video4-test1')
+            ped_detector.save_results(frame, frame_num, 'noon-video4-test3')
 
 if __name__ == '__main__':
     print("load video from %s" % sys.argv[1])

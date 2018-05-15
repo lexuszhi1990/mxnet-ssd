@@ -171,8 +171,16 @@ def main(*args, **kwargs):
       print(img_path+' image not exists')
       return
 
+    epoch_num = 128
+    threshold = 0.65
+    data_shape = 300
+    ctx = mx.gpu(0)
+    # model_prefix = '/app/model/deploy_ssd-densenet-tiny-ebike-detection'
+    # model_prefix = '/app/model/deploy_ssd-densenet-two-bikes'
+    model_prefix = '/app/model/deploy_deploy_ssd-densenet-tiny-ebike-detection-nms'
+
     start = time.clock()
-    ped_detector = Detector(symbol=None, model_prefix='/mnt/jobs/job1/deploy_ssd-', epoch=231, img_path=img_path, threshold=0.45, ctx=mx.cpu(4))
+    ped_detector = Detector(symbol=None, model_prefix=model_prefix, epoch=epoch_num, threshold=threshold, img_path=img_path, data_shape=data_shape, ctx=ctx)
     ped_detector.im_detect()
     print("total time used: %.4fs" % (time.clock()-start))
     ped_detector.save_results()
