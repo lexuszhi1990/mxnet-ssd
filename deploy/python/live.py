@@ -85,7 +85,7 @@ class Detector(object):
         if boxes.dtype.kind == "i":
             boxes = boxes.astype("float")
         pick = []
-        x1, y1, x2, y2, score = [boxes[:, i] for i in range(5)]
+        score, x1, y1, x2, y2 = [boxes[:, i+1] for i in range(5)]
         area = (x2 - x1 + 1) * (y2 - y1 + 1)
         idxs = np.argsort(score)
         while len(idxs) > 0:
@@ -132,12 +132,11 @@ class Detector(object):
         total_dets.wait_to_read()
         print("network forward costs: %dms" % millisecond(time.clock()-start))
 
-        # self.dets = [output.asnumpy() for output in total_dets if output[0] == 0]
         start = time.clock()
-        self.dets =  [{"bbox": det[2:].asnumpy().tolist(),
-                      "score": det[1].asnumpy()[0].astype(float),
-                      "category_id": det[0].asscalar()
-                      } for det in total_dets if det[1] >= self.threshold and det[0] >= 0]
+        total_dets_np = total_dets.asnumpy()
+        selected_dets = total_dets_np[total_dets_np[:, 0] == 1]
+        picked_ids = self.nms(selected_dets, overlap_threshold=0.5)
+        self.dets = selected_dets[picked_ids]
         print("results post-processing costs: %dms" % millisecond(time.clock()-start))
 
         return self.dets
@@ -151,9 +150,7 @@ class Detector(object):
         colors = dict()
 
         for det in self.dets:
-            box = det["bbox"]
-            score = det["score"]
-            cls_id = det["category_id"]
+            cls_id, score, box = int(det[0]), det[1], det[2:]
             if cls_id not in colors:
                 colors[cls_id] = (int(random.random()*255), int(random.random()*255), int(random.random()*255))
             left, top = int(box[0] * width), int(box[1] * height)
@@ -175,11 +172,12 @@ def main(*args, **kwargs):
 
     frame_num = 0
     epoch_num = 128
-    threshold = 0.45
+    threshold = 0.65
     data_shape = 300
-    ctx = mx.cpu(0)
+    ctx = mx.gpu(0)
     # model_prefix = '/app/model/deploy_ssd-densenet-tiny-ebike-detection'
-    model_prefix = '/app/model/deploy_ssd-densenet-two-bikes'
+    # model_prefix = '/app/model/deploy_ssd-densenet-two-bikes'
+    model_prefix = '/app/model/deploy_deploy_ssd-densenet-tiny-ebike-detection-nms'
     ped_detector = Detector(symbol=None, model_prefix=model_prefix, epoch=epoch_num, threshold=threshold, data_shape=data_shape, ctx=ctx)
     cap = cv2.VideoCapture(video_path)
 
@@ -193,7 +191,7 @@ def main(*args, **kwargs):
             start = time.clock()
             ped_detector.im_detect(frame)
             print("total time used: %.4fs" % (time.clock()-start))
-            ped_detector.save_results(frame, frame_num, 'video2')
+            ped_detector.save_results(frame, frame_num, 'noon-video4-test1')
 
 if __name__ == '__main__':
     print("load video from %s" % sys.argv[1])
