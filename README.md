@@ -26,6 +26,8 @@ training model management
 
 docker run -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-mirror:/app mxnet-ssd-bike:v0.2.1 bash
 
+docker run -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-mirror:/app mxnet-cu90-ssd:v0.1 bash
+
 ### docker env
 
 docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-pedestrian:/app -v /mnt/gf_mnt/datasets:/mnt/datasets -v /mnt/gf_mnt/jobs:/mnt/jobs  mxnet-ssd:v0.1 bash
