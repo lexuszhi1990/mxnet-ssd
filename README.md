@@ -22,6 +22,10 @@ train logs and metrics
 training model management
 /mnt/models
 
+### docker setup
+
+docker run -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-mirror:/app mxnet-ssd-bike:v0.2.1 bash
+
 ### docker env
 
 docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-pedestrian:/app -v /mnt/gf_mnt/datasets:/mnt/datasets -v /mnt/gf_mnt/jobs:/mnt/jobs  mxnet-ssd:v0.1 bash
@@ -35,7 +39,6 @@ python3.6 deploy.py --network densenet-tiny --prefix /mnt/jobs/job2/ssd-1-1 --ep
 python3.6 deploy.py --network densenet-tiny --prefix ./upload/model/V1/deploy_ssd-densenet-tiny-ebike-detection --epoch 128  --num-class 2 --topk 400 --threshold 0.30
 
 python3.6 demo.py --network densenet-tiny --cpu --class-names person --data-shape 300 --prefix /mnt/jobs/job2/ssd-1-1 --epoch 150 --class-names person --images ./data/demo/street.jpg
-
 
 python3.6 demo.py --network densenet-tiny --cpu --class-names person --data-shape 300 --prefix /mnt/jobs/job2/deploy_ssd-1-1 --epoch 150 --deploy --class-names person --images ./data/demo/street.jpg
 
