@@ -193,6 +193,7 @@ def main(*args, **kwargs):
             ped_detector.im_detect(frame)
             print("total time used: %.4fs" % (time.clock()-start))
             ped_detector.save_results(frame, frame_num, 'noon-video4-test3')
+    cap.release()
 
 if __name__ == '__main__':
     print("load video from %s" % sys.argv[1])
