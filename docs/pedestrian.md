@@ -25,6 +25,8 @@ start cpu docker image:
 start gpu docker image:
 `docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-pedestrian:/app -v /mnt/gf_mnt/datasets:/mnt/datasets -v /mnt/gf_mnt/jobs:/mnt/jobs  mxnet-cu90-ssd:v0.1 bash`
 
+`docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-mirror:/app -v /mnt/gf_mnt/datasets:/mnt/datasets -v /mnt/gf_mnt/jobs:/mnt/jobs  mxnet-cu90-ssd:v0.1 bash`
+
 #### on 172 server:
 `docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-pedestrian:/app -v /mnt/gf_mnt/datasets:/gfs/fl/datasets -v /mnt/gf_mnt/jobs:/gfs/fl/jobs  mxnet-cu90-ssd:v0.1 bash`
 
@@ -49,7 +51,7 @@ cpu:
 gpu:
 `python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job2/ssd --epoch 70 --gpu 0`
 
-`python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job1/ssd- --epoch 128 --gpu 0`
+`python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job1/ssd- --epoch 231 --gpu 0`
 
 `python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job1/ssd--1- --epoch 128 --gpu 0`
 
@@ -66,3 +68,30 @@ gpu:
 ### demo
 
 `python3.6 demo.py --network densenet-tiny --cpu --class-names person --data-shape 300 --prefix /mnt/jobs/job2/ssd-1-1 --epoch 150 --class-names person --images ./data/demo/street.jpg`
+
+
+##  dev logs
+
+
+### 2018.5.16
+
+version 0.1:
+```
+python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --prefix /mnt/jobs/job1/ssd- --epoch 231 --gpu 0
+
+person: 0.3529423180154818
+mAP: 0.3529423180154818
+```
+
+arbitrary shape:
+
+```
+python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /mnt/datasets/coco_person/val.lst --network densenet-tiny --batch-size 1 --num-class 1 --class-names person --data-shape 430 270 --prefix /mnt/jobs/densenet-tiny-v1/ssd --epoch 61 --gpu 0
+
+person: 0.3489304573703142
+mAP: 0.3489304573703142
+```
+
+```
+python3.6 train.py --train-path /mnt/datasets/coco_person/train.rec --val-path /mnt/datasets/coco_person/val.rec --prefix /mnt/jobs/densenet-tiny-v2/ssd --batch-size 8 --data-shape 430 270 --label-width 430 --lr 0.001 --network densenet-tiny --tensorboard True --num-class 1 --class-names person --gpu 0 --epoch 256
+```
