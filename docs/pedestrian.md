@@ -91,7 +91,8 @@ python3.6 evaluate.py --rec-path /mnt/datasets/coco_person/val.rec --list-path /
 ### 2018.5.17
 
 ```
-python3.6 train.py --train-path /mnt/datasets/coco_person/train.rec --val-path /mnt/datasets/coco_person/val.rec --prefix /mnt/jobs/densenet-tiny-v1/ssd --batch-size 16 --data-shape 430 270 --label-width 430 --lr 0.0005 --network densenet-tiny --tensorboard True --num-class 1 --class-names person --gpu 0 --resume 80
+python3.6 train.py --train-path /mnt/datasets/coco_person/train.rec --val-path /mnt/datasets/coco_person/val.rec --prefix /mnt/jobs/densenet-tiny-v1/ssd --batch-size 16 --data-shape 430 270 --label-width 430 --lr
+0.0005 --network densenet-tiny --tensorboard True --num-class 1 --class-names person --gpu 0 --resume 80
 ```
 
 ```
