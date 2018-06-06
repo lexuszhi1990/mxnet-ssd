@@ -6,6 +6,7 @@ You can use the code to train/evaluate/test for object detection task.
 
 ### project overview
 
+```
 deploy
 ├── c++
 │   ├── main.cc
@@ -19,9 +20,11 @@ deploy
 │   └── <model_list>
 └── demo_images
     └── <demo_images>
+```
 
 ### init
 
+```
 data dir
 /mnt/data/:dataset_name/
 /mnt/data/:dataset_name/val
@@ -59,7 +62,4 @@ python3.6 deploy.py --network densenet-tiny --prefix ./upload/model/V1/deploy_ss
 python3.6 demo.py --network densenet-tiny --cpu --class-names person --data-shape 300 --prefix /mnt/jobs/job2/ssd-1-1 --epoch 150 --class-names person --images ./data/demo/street.jpg
 
 python3.6 demo.py --network densenet-tiny --cpu --class-names person --data-shape 300 --prefix /mnt/jobs/job2/deploy_ssd-1-1 --epoch 150 --deploy --class-names person --images ./data/demo/street.jpg
-
-```
-arg_shapes, out_shapes, aux_shapes=out.infer_shape(**{"data": (1, 3, 300, 300)})
 ```
