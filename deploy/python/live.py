@@ -35,7 +35,7 @@ class Detector(object):
     ctx : mx.ctx
         device to use, if None, use mx.cpu() as default context
     """
-    def __init__(self, symbol, model_prefix, epoch, data_shape=300, img_path=None, mean_pixels=(123, 117, 104), threshold=0.2, batch_size=1, ctx=None):
+    def __init__(self, symbol, model_prefix, epoch, data_shape=300, mean_pixels=(123, 117, 104), threshold=0.2, batch_size=1, ctx=None):
         self.ctx = ctx
         if self.ctx is None:
             self.ctx = mx.cpu()
@@ -43,7 +43,6 @@ class Detector(object):
         self.threshold = threshold
         self.mean_pixels = mean_pixels
         self.batch_size = batch_size
-        self.img_path = img_path
         self.dets = None
         self.load_symbol, self.args, self.auxs = mx.model.load_checkpoint(
             model_prefix, epoch)
@@ -58,9 +57,8 @@ class Detector(object):
         new_auxs[k] = v.as_in_context(ctx)
       return new_args, new_auxs
 
-    def make_input(self):
-      img = cv2.imread(self.img_path)
-      img = cv2.resize(img, (self.data_shape, self.data_shape))
+    def make_input(self, input_image):
+      img = cv2.resize(input_image, (self.data_shape, self.data_shape))
       img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
       img = np.swapaxes(img, 0, 2)
       img = np.swapaxes(img, 1, 2)  # change to (channel, height, width)
@@ -87,7 +85,7 @@ class Detector(object):
         if boxes.dtype.kind == "i":
             boxes = boxes.astype("float")
         pick = []
-        x1, y1, x2, y2, score = [boxes[:, i] for i in range(5)]
+        score, x1, y1, x2, y2 = [boxes[:, i+1] for i in range(5)]
         area = (x2 - x1 + 1) * (y2 - y1 + 1)
         idxs = np.argsort(score)
         while len(idxs) > 0:
@@ -108,7 +106,7 @@ class Detector(object):
             idxs = np.delete(idxs, np.concatenate(([last],np.where(overlap > overlap_threshold)[0])))
         return pick
 
-    def im_detect(self):
+    def im_detect(self, input_image):
         """
         wrapper for detecting multiple images
 
@@ -118,7 +116,7 @@ class Detector(object):
         format np.array([id, score, xmin, ymin, xmax, ymax]...)
         """
         start = time.clock()
-        im_data = self.make_input()
+        im_data = self.make_input(input_image)
         print("make inputs costs: %dms" % millisecond(time.clock()-start))
 
         start = time.clock()
@@ -134,42 +132,44 @@ class Detector(object):
         total_dets.wait_to_read()
         print("network forward costs: %dms" % millisecond(time.clock()-start))
 
-        # self.dets = [output.asnumpy() for output in total_dets if output[0] == 0]
         start = time.clock()
-        self.dets =  [{"bbox": det[2:].asnumpy().tolist(),
-                      "score": det[1].asnumpy()[0].astype(float),
-                      "category_id": det[0].asscalar()
-                      } for det in total_dets if det[1] >= self.threshold and det[0] >= 0]
+        total_dets_np = total_dets.asnumpy()
+        selected_dets = total_dets_np[total_dets_np[:, 0] == 1]
+        selected_dets = selected_dets[selected_dets[:, 1] >= self.threshold]
+        picked_ids = self.nms(selected_dets, overlap_threshold=0.5)
+        self.dets = selected_dets[picked_ids]
         print("results post-processing costs: %dms" % millisecond(time.clock()-start))
 
         return self.dets
 
-    def save_results(self, save_path="./", color='red'):
-      draw = cv2.imread(self.img_path)
-      height, width, _ = draw.shape
-      colors = dict()
+    def save_results(self, input_img, frame_num=0, save_path="./", color='red'):
 
-      for det in self.dets:
-        box = det["bbox"]
-        score = det["score"]
-        cls_id = det["category_id"]
-        if cls_id not in colors:
-          colors[cls_id] = (int(random.random()*255), int(random.random()*255), int(random.random()*255))
-        left, top = int(box[0] * width), int(box[1] * height)
-        right, bottom = int(box[2] * width), int(box[3] * height)
-        cv2.rectangle(draw, (left, top), (right, bottom), colors[cls_id], 1)
-        cv2.putText(draw, '%.3f'%score, (left, top+30), cv2.FONT_HERSHEY_SIMPLEX, 1, colors[cls_id], 1)
+        if len(self.dets) == 0:
+            return
 
-      img_path = Path(self.img_path)
-      save_path = img_path.parent.joinpath(img_path.stem + '_result.png')
-      cv2.imwrite(save_path.as_posix(), draw)
-      print("save results at %s" % save_path)
+        height, width, _ = input_img.shape
+        colors = dict()
+
+        for det in self.dets:
+            cls_id, score, box = int(det[0]), det[1], det[2:]
+            if cls_id not in colors:
+                colors[cls_id] = (int(random.random()*255), int(random.random()*255), int(random.random()*255))
+            left, top = int(box[0] * width), int(box[1] * height)
+            right, bottom = int(box[2] * width), int(box[3] * height)
+            cv2.rectangle(input_img, (left, top), (right, bottom), colors[cls_id], 1)
+            cv2.putText(input_img, '%d:%.3f'%(cls_id,score), (left, top+30), cv2.FONT_HERSHEY_SIMPLEX, 1, colors[cls_id], 1)
+
+        det_img_path = Path(save_path, "frame_det_%d.png" % (frame_num))
+        if not det_img_path.parent.exists():
+            det_img_path.parent.mkdir()
+        cv2.imwrite(det_img_path.as_posix(), input_img)
+        print("save results at %s" % det_img_path)
 
 def main(*args, **kwargs):
-    img_path = args[0]
-    if not Path(img_path).exists():
-      print(img_path+' image not exists')
-      return
+
+    video_path = args[0]
+    # video_path = '../../data/videos/ch01_20180508113155.mp4'
+    assert Path(video_path).exists(), "%s not exists" % video_path
 
     epoch_num = 128
     threshold = 0.65
@@ -178,13 +178,23 @@ def main(*args, **kwargs):
     # model_prefix = '/app/model/deploy_ssd-densenet-tiny-ebike-detection'
     # model_prefix = '/app/model/deploy_ssd-densenet-two-bikes'
     model_prefix = '/app/model/deploy_deploy_ssd-densenet-tiny-ebike-detection-nms'
+    ped_detector = Detector(symbol=None, model_prefix=model_prefix, epoch=epoch_num, threshold=threshold, data_shape=data_shape, ctx=ctx)
 
-    start = time.clock()
-    ped_detector = Detector(symbol=None, model_prefix=model_prefix, epoch=epoch_num, threshold=threshold, img_path=img_path, data_shape=data_shape, ctx=ctx)
-    ped_detector.im_detect()
-    print("total time used: %.4fs" % (time.clock()-start))
-    ped_detector.save_results()
+    cap = cv2.VideoCapture(video_path)
+    frame_num = 0
+    while(cap.isOpened()):
+        ret, frame = cap.read()
+        if frame is None:
+            break
+        frame_num += 1
+        if frame_num % 30 == 0:
+            # img = cv2.imread(self.img_path)
+            start = time.clock()
+            ped_detector.im_detect(frame)
+            print("total time used: %.4fs" % (time.clock()-start))
+            ped_detector.save_results(frame, frame_num, 'noon-video4-test3')
+    cap.release()
 
 if __name__ == '__main__':
-    print("argv[]="+sys.argv[0]+" "+sys.argv[1])
+    print("load video from %s" % sys.argv[1])
     main(sys.argv[1])

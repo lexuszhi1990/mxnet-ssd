@@ -152,3 +152,6 @@ output
 
 # deploy
 deploy/c++/build
+deploy/demo_images
+
+archives

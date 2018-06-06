@@ -32,8 +32,10 @@ def parse_args():
                         default='0', type=str)
     parser.add_argument('--cpu', dest='cpu', help='use cpu to evaluate, this can be slow',
                         action='store_true')
-    parser.add_argument('--data-shape', dest='data_shape', type=int, default=300,
-                        help='set image shape')
+    # parser.add_argument('--data-shape', dest='data_shape', type=int, default=300,
+    #                     help='set image shape')
+    parser.add_argument('--data-shape', dest='data_shape', nargs='+', default=300,
+                        help='set image shape. (length) or (width, height)')
     parser.add_argument('--mean-r', dest='mean_r', type=float, default=123,
                         help='red mean value')
     parser.add_argument('--mean-g', dest='mean_g', type=float, default=117,
