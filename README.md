@@ -47,7 +47,28 @@ docker run -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-mirror:/app mxnet-ssd
 
 docker run -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-mirror:/app mxnet-cu90-ssd:v0.1 bash
 
-### docker env
+for 172 server:
+docker run --network host -it --rm -v /data/david/models/ssd:/mnt/models -v /data/david/cocoapi:/mnt/datasets/coco -v /data/david/VOCdevkit:/mnt/datasets/voc -v /home/david/mxnet-ssd:/app mxnet-cu90-ssd:v0.1 bash
+
+### training
+
+densenet121(35M):
+```
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3.6 train.py --train-path /mnt/datasets/coco/build/person/train-total.rec --val-path /mnt/datasets/coco/build/person/val-total.rec --network densenet121 --data-shape 480 270 --label-width 480 --lr 0.004 --lr-steps 32,64,96  --end-epoch 128 --num-class 1 --class-names person --prefix /mnt/models/train-v1/ssd --gpus 0,1,2,3 --batch-size 142
+
+CUDA_VISIBLE_DEVICES=6 python3.6 evaluate.py --rec-path /mnt/datasets/coco/build/person/val-total.rec --network densenet121 --data-shape 480 270 --num-class 1 --class-names person --prefix /app/output/exp1/ssd --epoch 28 --batch-size 16 --gpus 0
+```
+
+inceptionv3(98M):
+
+```
+CUDA_VISIBLE_DEVICES=6 python3.6 evaluate.py --rec-path /mnt/datasets/coco/build/person/val-total.rec --network inceptionv3 --data-shape 480 270 --num-class 1 --class-names person --prefix /mnt/models/ssd-inception-v1/ssd --epoch 28 --batch-size 16 --gpus 0
+```
+
+/mnt/models/ssd-inception-v1/ssd-0069.params
+
+
+### bak
 
 docker run --network host -it --rm -v /home/fulingzhi/workspace/mxnet-ssd-pedestrian:/app -v /mnt/gf_mnt/datasets:/mnt/datasets -v /mnt/gf_mnt/jobs:/mnt/jobs  mxnet-ssd:v0.1 bash
 
@@ -63,3 +84,34 @@ python3.6 demo.py --network densenet-tiny --cpu --class-names person --data-shap
 
 python3.6 demo.py --network densenet-tiny --cpu --class-names person --data-shape 300 --prefix /mnt/jobs/job2/deploy_ssd-1-1 --epoch 150 --deploy --class-names person --images ./data/demo/street.jpg
 ```
+
+### daliy log
+
+
+filter person images( `float(bbox[2]) * float(bbox[3]) < 48*96` ) :
+
+train images: 54368, and anno num: 122683
+val images: 2271, and anno num: 5239
+
+
+train with refine person:
+
+CUDA_VISIBLE_DEVICES=2,3 python3.6 train.py --train-path /mnt/datasets/coco/build/person/train-refined.rec --val-path /mnt/datasets/coco/build/person/val-refined.rec --network inceptionv3 --data-shape 480 270 --label-width 480 --lr 0.04 --lr-steps 20,60,80 --end-epoch 128 --num-class 1 --class-names person --prefix /mnt/models/train-inception-v2/ssd --gpus 0,1 --batch-size 64
+
+CUDA_VISIBLE_DEVICES=2,3 python3.6 train.py --train-path /mnt/datasets/voc/build/person-train.rec --val-path /mnt/datasets/voc/build/person-val.rec --network inceptionv3 --data-shape 480 270 --label-width 480 --lr 0.04 --lr-steps 20,60,80,100 --end-epoch 128 --num-class 1 --class-names person --prefix /mnt/models/train-inception-v2/ssd --gpus 0,1 --batch-size 64
+
+
+#### build pascal voc person dataset:
+
+train:
+images: 9540, and anno num: 17161
+... remaining 17161/17161 labels.
+filtering images with no gt-labels. can abort filtering using *true_negative* flag
+... remaining 8624/9540 images.
+saving list to disk...
+
+validate:
+images: 2000, and anno num: 4271
+... remaining 4271/4271 labels.
+filtering images with no gt-labels. can abort filtering using *true_negative* flag
+... remaining 1914/2000 images.
