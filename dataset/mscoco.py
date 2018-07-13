@@ -95,21 +95,28 @@ class Coco(Imdb):
             label = []
             for anno in annos:
                 cat_id = int(anno["category_id"])
+                if cat_id != 1:
+                    continue
+
                 bbox = anno["bbox"]
+
+                if float(bbox[2]) * float(bbox[3]) < 48*96:
+                    continue
+
                 assert len(bbox) == 4
                 base_cat_id = None
 
                 # {id: 1, name: person, supercategory: person}
                 # {id: 2, name: bicycle, supercategory: vehicle}
                 # {id: 4, name: motorcycle, supercategory: vehicle}
-                # if cat_id == 1:
-                #   base_cat_id = 0
+                if cat_id == 1:
+                    base_cat_id = 0
                 # if cat_id == 2:
                 #     base_cat_id = 0
                 # elif cat_id == 4:
                 #     base_cat_id = 1
-                if cat_id == 2 or cat_id == 4:
-                    base_cat_id = 0
+                # if cat_id == 2 or cat_id == 4:
+                #     base_cat_id = 0
 
                 if base_cat_id is not None:
                     xmin = float(bbox[0]) / width
@@ -117,8 +124,7 @@ class Coco(Imdb):
                     xmax = xmin + float(bbox[2]) / width
                     ymax = ymin + float(bbox[3]) / height
                     label.append([base_cat_id, xmin, ymin, xmax, ymax, 0])
-
-            if label:
+            if len(label) > 0:
                 labels.append(np.array(label))
                 image_set_index.append(filename)
 
@@ -129,5 +135,6 @@ class Coco(Imdb):
             image_set_index = [image_set_index[i] for i in indices]
             labels = [labels[i] for i in indices]
         # store the results
+        print("images: %d, and anno num: %d" % (len(image_set_index), sum([len(l) for l in labels])))
         self.image_set_index = image_set_index
         self.labels = labels

@@ -262,7 +262,8 @@ def train_net(network, train_path, num_classes, batch_size,
         val_iter = None
 
     # load symbol
-    net = get_symbol_train(network, data_shape[1], num_classes=num_classes, nms_thresh=nms_thresh, force_suppress=force_suppress, nms_topk=nms_topk, minimum_negative_samples=min_neg_samples)
+    net = get_symbol_train(network, data_shape[2], num_classes=num_classes, nms_thresh=nms_thresh, force_suppress=force_suppress, nms_topk=nms_topk, minimum_negative_samples=min_neg_samples)
+    print(data_shape)
 
     # define layers with fixed weight/bias
     if freeze_layer_pattern.strip():

@@ -49,6 +49,9 @@ class PascalVoc(Imdb):
         self.num_images = len(self.image_set_index)
         if self.is_train:
             self.labels = self._load_image_labels()
+
+        print("images: %d, and anno num: %d" % (self.num_images, sum([len(l) for l in self.labels])))
+
         # filter images with no ground-truth, like in case you use only a subset of classes
         if not self.true_negative_images:
             self._filter_image_with_no_gt()
@@ -78,7 +81,24 @@ class PascalVoc(Imdb):
         """
 
         # filter images that do not have any of the specified classes
-        self.labels = [f[np.logical_and(f[:, 0] >= 0, f[:, 0] <= self.num_classes-1), :] for f in self.labels]
+        # f = self.labels[0]
+        # f[np.logical_and(f[:, 0] >= 0, f[:, 0] <= self.num_classes-1)]
+
+        aa = []
+        for f in self.labels:
+            if len(f) == 0:
+                continue
+            try:
+                aa.append(f[np.logical_and(f[:, 0] >= 0, f[:, 0] <= self.num_classes-1), :])
+            except:
+                import pdb;pdb.set_trace()
+
+        old_lables_num = sum([len(l) for l in self.labels])
+        new_lables_num = sum([len(l) for l in aa])
+        print ('... remaining {0}/{1} labels.  '.format(new_lables_num, old_lables_num))
+        self.labels = aa
+
+        # self.labels = [f[np.logical_and(f[:, 0] >= 0, f[:, 0] <= self.num_classes-1), :] for f in self.labels]
         # find indices of images with ground-truth labels
         gt_indices = [idx for idx, f in enumerate(self.labels) if not f.size == 0]
 

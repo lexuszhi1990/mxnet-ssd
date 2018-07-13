@@ -79,7 +79,7 @@ def evaluate_net(net, path_imgrec, num_classes, mean_pixels, data_shape,
     if net is None:
         net = load_net
     else:
-        net = get_symbol(net, data_shape[1], num_classes=num_classes,
+        net = get_symbol(net, data_shape[2], num_classes=num_classes,
             nms_thresh=nms_thresh, force_suppress=force_nms)
     if not 'label' in net.list_arguments():
         label = mx.sym.Variable(name='label')
