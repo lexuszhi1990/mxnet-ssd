@@ -101,6 +101,9 @@ CUDA_VISIBLE_DEVICES=2,3 python3.6 train.py --train-path /mnt/datasets/coco/buil
 CUDA_VISIBLE_DEVICES=2,3 python3.6 train.py --train-path /mnt/datasets/voc/build/person-train.rec --val-path /mnt/datasets/voc/build/person-val.rec --network inceptionv3 --data-shape 480 270 --label-width 480 --lr 0.04 --lr-steps 20,60,80,100 --end-epoch 128 --num-class 1 --class-names person --prefix /mnt/models/train-inception-v2/ssd --gpus 0,1 --batch-size 64
 
 
+CUDA_VISIBLE_DEVICES=0 python3.6 evaluate.py --rec-path /mnt/datasets/voc/build/person-val.rec --network inceptionv3 --data-shape 480 270 --num-class 1 --class-names person --prefix /mnt/models/ssd-inception-v1/ssd --epoch 121 --batch-size 16 --gpus 0
+
+
 #### build pascal voc person dataset:
 
 train:
@@ -115,3 +118,9 @@ images: 2000, and anno num: 4271
 ... remaining 4271/4271 labels.
 filtering images with no gt-labels. can abort filtering using *true_negative* flag
 ... remaining 1914/2000 images.
+
+inceptionv3:
+|epoch|coco-person-val|coco-person-refined-val|voc2017-person-val|
+|-----|---------------|-----------------------|------------------|
+|110|0.34|0.491|0.556|
+|128|0.351|0.499|-|

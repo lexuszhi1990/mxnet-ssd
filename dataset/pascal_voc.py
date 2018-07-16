@@ -144,6 +144,7 @@ class PascalVoc(Imdb):
         """
         assert self.image_set_index is not None, "Dataset not initialized"
         name = self.image_set_index[index]
+        name = name.split(' ')[0]
         image_file = os.path.join(self.data_path, 'JPEGImages', name + self.extension)
         assert os.path.exists(image_file), 'Path does not exist: {}'.format(image_file)
         return image_file
@@ -176,7 +177,8 @@ class PascalVoc(Imdb):
         ----------
         full path of annotation file
         """
-        label_file = os.path.join(self.data_path, 'Annotations', index + '.xml')
+        label_name = index.split(' ')[0]
+        label_file = os.path.join(self.data_path, 'Annotations', label_name + '.xml')
         assert os.path.exists(label_file), 'Path does not exist: {}'.format(label_file)
         return label_file
 
@@ -205,10 +207,16 @@ class PascalVoc(Imdb):
                 # if not self.config['use_difficult'] and difficult == 1:
                 #     continue
                 cls_name = obj.find('name').text
+                if cls_name != "person":
+                    continue
+
                 if cls_name not in self.classes:
                     cls_id = len(self.classes)
                 else:
                     cls_id = self.classes.index(cls_name)
+                if cls_id == 14:
+                    cls_id = 0
+
                 xml_box = obj.find('bndbox')
                 xmin = float(xml_box.find('xmin').text) / width
                 ymin = float(xml_box.find('ymin').text) / height
