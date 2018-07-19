@@ -168,16 +168,14 @@ class Detector(object):
 def main(*args, **kwargs):
     img_path = args[0]
     if not Path(img_path).exists():
-      print(img_path+' image not exists')
-      return
+        print(img_path+' image not exists')
+        return
 
-    epoch_num = 128
     threshold = 0.65
-    data_shape = 300
+    data_shape = 360
     ctx = mx.gpu(0)
-    # model_prefix = '/app/model/deploy_ssd-densenet-tiny-ebike-detection'
-    # model_prefix = '/app/model/deploy_ssd-densenet-two-bikes'
-    model_prefix = '/app/model/deploy_deploy_ssd-densenet-tiny-ebike-detection-nms'
+    model_prefix = '../models/ssd-512/deploy_ssd'
+    epoch_num = 512
 
     start = time.clock()
     ped_detector = Detector(symbol=None, model_prefix=model_prefix, epoch=epoch_num, threshold=threshold, img_path=img_path, data_shape=data_shape, ctx=ctx)

@@ -119,8 +119,21 @@ images: 2000, and anno num: 4271
 filtering images with no gt-labels. can abort filtering using *true_negative* flag
 ... remaining 1914/2000 images.
 
+### 2018.7.16
+
 inceptionv3:
-|epoch|coco-person-val|coco-person-refined-val|voc2017-person-val|
-|-----|---------------|-----------------------|------------------|
-|110|0.34|0.491|0.556|
-|128|0.351|0.499|-|
+
+|model\dataset|total-person|refined-perspn|VOC2017|
+|------------|------------|--------------|-------|
+|total(480x270)|0.3511|0.4957|0.556|
+|refined(480x270)|0.2652|0.5272|0.477|
+|total(360x360)|0.3583|0.7074|0.7662|
+
+
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3.6 train.py --train-path /mnt/datasets/coco/build/person/train-total.rec --val-path /mnt/datasets/coco/build/person/val-total.rec --network inceptionv3 --data-shape 360 360 --label-width 360 --lr 0.04 --lr-steps 80,120 --end-epoch 128 --num-class 1 --class-names person --prefix /mnt/models/train-inception-v4/ssd --gpus 0,1,2,3,4,5,6,7 --batch-size 320 --tensorboard True
+
+CUDA_VISIBLE_DEVICES=7 python3.6 evaluate.py --rec-path /mnt/datasets/coco/build/person/val-total.rec --network inceptionv3 --data-shape 360 360 --num-class 1 --class-names person --prefix /mnt/models/train-inception-v4/ssd --epoch 27 --batch-size 4 --gpus 0
+
+python3.6 demo.py --network inceptionv3 --cpu --class-names person --data-shape 360 --prefix /mnt/models/train-inception-v4/ssd --epoch 256 --class-names person --images ./samples/demo/ebike-three.jpg
+
+python3.6 deploy.py --network inceptionv3 --prefix /mnt/models/train-inception-v4/ssd --epoch 345 --num-class 1 --topk 400

@@ -156,8 +156,8 @@ int main(int argc, char* argv[]) {
     test_file = std::string(argv[1]);
 
     // Models path for your model, you have to modify it
-    std::string json_file = "/mnt/jobs/vgg16_reduced-v1/deploy_ssd-symbol.json";
-    std::string param_file = "/mnt/jobs/vgg16_reduced-v1/deploy_ssd-0019.params";
+    std::string json_file = "../../models/ssd-512/deploy_ssd-symbol.json";
+    std::string param_file = "../../models/ssd-512/deploy_ssd-0512.params";
 
     // std::string json_file = "/mnt/jobs/job2/deploy_ssd-1-1-symbol.json";
     // std::string param_file = "/mnt/jobs/job2/deploy_ssd-1-1-0150.params";
@@ -178,8 +178,8 @@ int main(int argc, char* argv[]) {
     const char** input_keys = input_key;
 
     // Image size and channels
-    int width = 512;
-    int height = 512;
+    int width = 360;
+    int height = 360;
     int channels = 3;
 
     const mx_uint input_shape_indptr[2] = { 0, 4 };
