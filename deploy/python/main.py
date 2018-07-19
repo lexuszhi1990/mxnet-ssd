@@ -173,7 +173,7 @@ def main(*args, **kwargs):
 
     threshold = 0.65
     data_shape = 360
-    ctx = mx.gpu(0)
+    ctx = mx.cpu(0)
     model_prefix = '../models/ssd-512/deploy_ssd'
     epoch_num = 512
 
