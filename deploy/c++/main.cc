@@ -156,8 +156,8 @@ int main(int argc, char* argv[]) {
     test_file = std::string(argv[1]);
 
     // Models path for your model, you have to modify it
-    std::string json_file = "../../models/ssd-512/deploy_ssd-symbol.json";
-    std::string param_file = "../../models/ssd-512/deploy_ssd-0512.params";
+    std::string json_file = "/mnt/models/train-inception-v5/deploy_ssd-symbol.json";
+    std::string param_file = "/mnt/models/train-inception-v5/deploy_ssd-0512.params";
 
     // std::string json_file = "/mnt/jobs/job2/deploy_ssd-1-1-symbol.json";
     // std::string param_file = "/mnt/jobs/job2/deploy_ssd-1-1-0150.params";
@@ -171,8 +171,8 @@ int main(int argc, char* argv[]) {
 
     startTime = clock();
     // Parameters
-    int dev_type = 1;  // 1: cpu, 2: gpu
-    int dev_id = 0;  // arbitrary.
+    int dev_type = 2;  // 1: cpu, 2: gpu
+    int dev_id = 1;  // arbitrary.
     mx_uint num_input_nodes = 1;  // 1 for feedforward
     const char* input_key[1] = {"data"};
     const char** input_keys = input_key;

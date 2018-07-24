@@ -17,8 +17,11 @@
 
 import mxnet as mx
 
+from .convolution import CoordConv2D
+mxnet_conv = CoordConv2D
+
 def Conv(data, num_filter=1, kernel=(1, 1), stride=(1, 1), pad=(0, 0), num_group=1, name=None, suffix=''):
-    conv = mx.sym.Convolution(data=data, num_filter=num_filter, kernel=kernel, num_group=num_group, stride=stride, pad=pad, no_bias=True, name='%s%s_conv2d' %(name, suffix))
+    conv = mxnet_conv(data=data, num_filter=num_filter, kernel=kernel, num_group=num_group, stride=stride, pad=pad, no_bias=True, name='%s%s_conv2d' %(name, suffix))
     bn = mx.sym.BatchNorm(data=conv, name='%s%s_batchnorm' %(name, suffix), fix_gamma=True)
     act = mx.sym.Activation(data=bn, act_type='relu', name='%s%s_relu' %(name, suffix))
     return act

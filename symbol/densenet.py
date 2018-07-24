@@ -16,6 +16,9 @@ Coded by Lin Xiong Mar-1, 2017
 import mxnet as mx
 import math
 
+from .convolution import CoordConv2D
+mxnet_conv = CoordConv2D
+
 def BasicBlock(data, growth_rate, stride, name, bottle_neck=True, drop_out=0.0, bn_mom=0.9, workspace=512):
     """Return BaiscBlock Unit symbol for building DenseBlock
     Parameters
@@ -40,13 +43,13 @@ def BasicBlock(data, growth_rate, stride, name, bottle_neck=True, drop_out=0.0, 
         # the same as https://github.com/facebook/fb.resnet.torch#notes, a bit difference with origin paper
         bn1   = mx.sym.BatchNorm(data=data, fix_gamma=False, eps=2e-5, momentum=bn_mom, name=name + '_bn1')
         act1  = mx.sym.Activation(data=bn1, act_type='relu', name=name + '_relu1')
-        conv1 = mx.sym.Convolution(data=act1, num_filter=int(growth_rate*4), kernel=(1,1), stride=(1,1), pad=(0,0),
+        conv1 = mxnet_conv(data=act1, num_filter=int(growth_rate*4), kernel=(1,1), stride=(1,1), pad=(0,0),
                                       no_bias=True, workspace=workspace, name=name + '_conv1')
         if drop_out > 0:
             conv1 = mx.symbol.Dropout(data=conv1, p=drop_out, name=name + '_dp1')
         bn2   = mx.sym.BatchNorm(data=conv1, fix_gamma=False, eps=2e-5, momentum=bn_mom, name=name + '_bn2')
         act2  = mx.sym.Activation(data=bn2, act_type='relu', name=name + '_relu2')
-        conv2 = mx.sym.Convolution(data=act2, num_filter=int(growth_rate), kernel=(3,3), stride=stride, pad=(1,1),
+        conv2 = mxnet_conv(data=act2, num_filter=int(growth_rate), kernel=(3,3), stride=stride, pad=(1,1),
                                       no_bias=True, workspace=workspace, name=name + '_conv2')
         if drop_out > 0:
             conv2 = mx.symbol.Dropout(data=conv2, p=drop_out, name=name + '_dp2')
@@ -55,7 +58,7 @@ def BasicBlock(data, growth_rate, stride, name, bottle_neck=True, drop_out=0.0, 
     else:
         bn1   = mx.sym.BatchNorm(data=data, fix_gamma=False, eps=2e-5, momentum=bn_mom, name=name + '_bn1')
         act1  = mx.sym.Activation(data=bn1, act_type='relu', name=name + '_relu1')
-        conv1 = mx.sym.Convolution(data=act1, num_filter=int(growth_rate), kernel=(3,3), stride=(1,1), pad=(1,1),
+        conv1 = mxnet_conv(data=act1, num_filter=int(growth_rate), kernel=(3,3), stride=(1,1), pad=(1,1),
                                       no_bias=True, workspace=workspace, name=name + '_conv1')
         if drop_out > 0:
             conv1 = mx.symbol.Dropout(data=conv1, p=drop_out, name=name + '_dp1')
@@ -108,7 +111,7 @@ def TransitionBlock(num_stage, data, num_filter, stride, name, drop_out=0.0, bn_
     """
     bn1   = mx.sym.BatchNorm(data=data, fix_gamma=False, eps=2e-5, momentum=bn_mom, name=name + '_bn1')
     act1  = mx.sym.Activation(data=bn1, act_type='relu', name=name + '_relu1')
-    conv1 = mx.sym.Convolution(data=act1, num_filter=num_filter,
+    conv1 = mxnet_conv(data=act1, num_filter=num_filter,
                                 kernel=(1,1), stride=stride, pad=(0,0), no_bias=True,
                                 workspace=workspace, name=name + '_conv1')
     if drop_out > 0:
@@ -143,19 +146,19 @@ def get_symbol(units, num_stage, growth_rate, num_classes, data_type, reduction=
     data = mx.sym.Variable(name='data')
     data = mx.sym.BatchNorm(data=data, fix_gamma=True, eps=2e-5, momentum=bn_mom, name='bn_data')
     if data_type == 'imagenet':
-        body = mx.sym.Convolution(data=data, num_filter=growth_rate*2, kernel=(7, 7), stride=(2,2), pad=(3, 3),
+        body = mxnet_conv(data=data, num_filter=growth_rate*2, kernel=(7, 7), stride=(2,2), pad=(3, 3),
                                   no_bias=True, name="conv0", workspace=workspace)
         body = mx.sym.BatchNorm(data=body, fix_gamma=False, eps=2e-5, momentum=bn_mom, name='bn0')
         body = mx.sym.Activation(data=body, act_type='relu', name='relu0')
         body = mx.symbol.Pooling(data=body, kernel=(3, 3), stride=(2,2), pad=(1,1), pool_type='max')
     elif data_type == 'vggface':
-        body = mx.sym.Convolution(data=data, num_filter=growth_rate*2, kernel=(7, 7), stride=(2,2), pad=(3, 3),
+        body = mxnet_conv(data=data, num_filter=growth_rate*2, kernel=(7, 7), stride=(2,2), pad=(3, 3),
                                   no_bias=True, name="conv0", workspace=workspace)
         body = mx.sym.BatchNorm(data=body, fix_gamma=False, eps=2e-5, momentum=bn_mom, name='bn0')
         body = mx.sym.Activation(data=body, act_type='relu', name='relu0')
         body = mx.symbol.Pooling(data=body, kernel=(3, 3), stride=(2,2), pad=(1,1), pool_type='max')
     elif data_type == 'msface':
-        body = mx.sym.Convolution(data=data, num_filter=growth_rate*2, kernel=(7, 7), stride=(2,2), pad=(3, 3),
+        body = mxnet_conv(data=data, num_filter=growth_rate*2, kernel=(7, 7), stride=(2,2), pad=(3, 3),
                                   no_bias=True, name="conv0", workspace=workspace)
         body = mx.sym.BatchNorm(data=body, fix_gamma=False, eps=2e-5, momentum=bn_mom, name='bn0')
         body = mx.sym.Activation(data=body, act_type='relu', name='relu0')

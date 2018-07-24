@@ -159,6 +159,7 @@ class Detector(object):
         right, bottom = int(box[2] * width), int(box[3] * height)
         cv2.rectangle(draw, (left, top), (right, bottom), colors[cls_id], 1)
         cv2.putText(draw, '%.3f'%score, (left, top+30), cv2.FONT_HERSHEY_SIMPLEX, 1, colors[cls_id], 1)
+        print("%d, %.4f, (%d, %d, %d, %d)" % (cls_id, score, left, top, right, bottom))
 
       img_path = Path(self.img_path)
       save_path = img_path.parent.joinpath(img_path.stem + '_result.png')
@@ -171,11 +172,11 @@ def main(*args, **kwargs):
         print(img_path+' image not exists')
         return
 
-    threshold = 0.65
+    threshold = 0.85
     data_shape = 360
-    ctx = mx.cpu(0)
-    model_prefix = '../models/ssd-512/deploy_ssd'
-    epoch_num = 512
+    ctx = mx.cpu(1)
+    model_prefix = '/mnt/models/train-inception-v5/deploy_ssd'
+    epoch_num = 380
 
     start = time.clock()
     ped_detector = Detector(symbol=None, model_prefix=model_prefix, epoch=epoch_num, threshold=threshold, img_path=img_path, data_shape=data_shape, ctx=ctx)
