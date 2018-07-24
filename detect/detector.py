@@ -148,7 +148,7 @@ class Detector(object):
                                     fontsize=12, color='white')
         # plt.show()
         img_path = Path(image_posix_path)
-        demo_path = img_path.parent.joinpath(img_path.stem + '_demo.jpg')
+        demo_path = img_path.parent.joinpath(img_path.stem + '_demo.png').as_posix()
         print("save demo image at %s" % demo_path)
         plt.savefig(demo_path)
         plt.clf()
