@@ -1,8 +1,6 @@
 # SSD: Single Shot MultiBox Object Detector
 
-SSD is an unified framework for object detection with a single network.
-
-You can use the code to train/evaluate/test for object detection task.
+SSD is an unified framework for object detection with a single network.You can use the code to train/evaluate/test for object detection task.
 
 ### project overview
 
